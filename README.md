@@ -1,6 +1,9 @@
 # pdf_pipeline
 A PDF to JSON transformation pipeline using Poppler and OpenAI API
 
+Poppler-utils are required
+`sudo apt install poppler-utils`
+
 Example:
 
 Get PDF page count
