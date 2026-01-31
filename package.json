@@ -1,0 +1,19 @@
+{
+  "name": "pdf_pipeline",
+  "version": "1.0.0",
+  "description": "A CLI for extracting credit card transactions from a PDF",
+  "license": "ISC",
+  "author": "Jakob Edelstein",
+  "type": "module",
+  "main": "extract.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "openai": "^6.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0"
+  }
+}
