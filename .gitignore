@@ -1,2 +1,5 @@
 .env
 node_modules
+pdf_statements
+statement_text
+tranactions
