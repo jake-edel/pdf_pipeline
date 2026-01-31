@@ -54,7 +54,13 @@ fs.readFile(filename, (err, data) => {
    })
   
    const output = response.output_text
-   console.log(output);
+
+   try {
+    const json = JSON.parse(output)
+    console.log(json);
+   } catch {
+    throw new Error ('JSON parse error!\n' + output)
+   }
   }
 
   query().catch(error => {
