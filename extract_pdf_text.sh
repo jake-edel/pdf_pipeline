@@ -18,13 +18,13 @@ convert_pdf() {
 	echo "Converting pages $first_page to $last_page of $infile"
 
 	# Extract text from PDF
-	pdftotext -f $first_page -l $last_page -- "$infile" - \
-		# Clear out form feed character
+	# Clear out form feed character
+	# Clear out empty lines
+	# Write out file
+	pdftotext -f $first_page -l $last_page -- "$PDF_DIR/$infile" - \
 		| tr -d '\f' \
-		# Clear out empty lines
 		| sed '/^[[:space:]]*$/d' \
-		# Write out file
-		> "$outfile"
+		> "$TEXT_DIR/$outfile"
 
 	echo "Generated $outfile from PDF $infile"
 	echo ""
