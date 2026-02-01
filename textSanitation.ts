@@ -1,5 +1,4 @@
-  const rowStartRegex = /(\d{2} (?:ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|OCT|NOV|DIC))\n/
-  
+  const rowDateRegexp = /(\d{2} (?:ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|OCT|NOV|DIC))\n/
   
   /**
    * Removes of the text in the string
@@ -9,7 +8,7 @@
   function removeIntroduction(text: string) {
     // Start looking for the first date tag (eg. ENE 01, DIC 31)
     // This should correspond with the start of the transactions table
-    const firstRowStart = text.match(rowStartRegex)
+    const firstRowStart = text.match(rowDateRegexp)
 
     if (!firstRowStart?.[0]) {
       console.log("Row Start Regex failed");
@@ -22,25 +21,19 @@
     return sanitizedText
   }
 
-  /**
-   * Removes the account information at the top of each page 
-   * @returns - a new string
-   * */
-  function removeAccountInfo(text: string) {
-    // Remove chunks of account information 
-    const accountInfoRegex = /JAKOB ANDREW EDELSTEIN\nTARJETA:\s.*\n.*\nRFC: .*/g;
-    const sanitizedText = text.replaceAll(accountInfoRegex, "");
-    return sanitizedText
-  }
-
-  /**
-   * Removes the page count found at the bottom of each page
-   * @returns - a new string
-   * */
-  function removePageCounts(text: string) {
-    // Clear out page counts at the end of each page
-    const pageCountRegex = /\d+ de \d+\n/g
-    const sanitizedText = text.replaceAll(pageCountRegex, "")
+  function removePageElements(text: string) {
+    const regexChain = [
+      /TRANSACCIONES.*\n/g,
+      /.*MONTOS EN PESOS MEXICANOS\n/g,
+      /JAKOB ANDREW EDELSTEIN\nTARJETA:\s.*\n.*\nRFC:.*\n/g,
+      /\d+ de \d+\n/g,
+      /\$/g
+    ]
+    const sanitizedText = regexChain.reduce(
+      (t, regexp) => t.replaceAll(regexp, "")
+      , text
+    )
+    
     return sanitizedText
   }
 
@@ -53,10 +46,10 @@
     return sanitizedText
   }
 
-  function splitIntoRows(text: string): string[][] {
-    const parts = text.split(rowStartRegex)
+  export function splitIntoRows(text: string): string[][] {
+    const parts = text.split(rowDateRegexp)
     // Remove empty element at start
-    // Inserted because rowStartRegex has a capturing group
+    // Inserted because rowDateRegexp has a capturing group
     parts.shift() 
     
     const rows = [];
@@ -68,10 +61,8 @@
     return rows
   }
 
-  export default {
+  export default [
     removeIntroduction,
-    removeAccountInfo,
-    removePageCounts,
     removeOutro,
-    splitIntoRows
-  }
+    removePageElements,
+  ]
