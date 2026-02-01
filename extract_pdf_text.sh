@@ -2,11 +2,14 @@
 set -euo pipefail
 
 convert_pdf() {
+	local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" & pwd)"
+	local PDF_DIR="$SCRIPT_DIR/data/pdfs"
+	local TEXT_DIR="$SCRIPT_DIR/data/text"
 	local infile="$1"
 	local outfile="$2"
 	local pages first_page last_page
 
-	pages=$(pdfinfo "$infile" | awk '/^Pages:/ { print $2 }') || {
+	pages=$(pdfinfo "$PDF_DIR/$infile" | awk '/^Pages:/ { print $2 }') || {
 		echo "Failed to read PDF info: $infile" >&2
 		return 1
 	}
