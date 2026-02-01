@@ -11,7 +11,7 @@ convert_pdf() {
 		return 1
 	}
 	(( pages > 2 )) || return 1
-	first_page=2
+	first_page=3
 
 	last_page=$((pages - 1))
 
