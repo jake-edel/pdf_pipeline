@@ -1,5 +1,5 @@
 .env
 node_modules
-pdf_statements/
+statements/
 statement_text/
 transactions/
