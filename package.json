@@ -5,7 +5,7 @@
   "license": "ISC",
   "author": "Jakob Edelstein",
   "type": "module",
-  "main": "extract.js",
+  "main": "textToJson.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
