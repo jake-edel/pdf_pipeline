@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import "dotenv/config";
-import { splitIntoRows } from "./textSanitation.ts";
 import sanitationPipeline from "./textSanitation.ts";
+import handleRowSplit from "./handleRowSplit.ts";
 
 if (process.argv.length < 3) {
   console.log("No filename argument provided!");
@@ -19,25 +19,24 @@ try {
 }
 
 const sanitizedText = sanitationPipeline.reduce((acc, fn) => fn(acc), text);
+const rows = handleRowSplit(sanitizedText)
 
-const rows = splitIntoRows(sanitizedText);
+const hasValidRowLength = (row: string[]) => row.length === 4
+const sanitizeTransactionAmount = (val: string) => Number.parseFloat(val?.replaceAll(/[,|\s]/g, ""))
 
-console.log(rows);
+const failedRows: string[][] = []
+const rowObjs = rows.filter((row, index )=> {
+  if (!hasValidRowLength(row)) {
+    console.log(`Row Index ${index} failed length validation\n` + row + "\n")
+    failedRows.push(row)
+    return false
+  }
 
-function validateRowLength(rows: string[][]) {
-  rows.forEach((row, index) => {
-    const rowNumber = index + 1
-    if (row.length != 4)
-      console.log(`Row ${rowNumber} did not pass length check!\n` + row + "\n");
-  })
-}
-
-validateRowLength(rows)
-
-const rowObjs = rows.map(row => {
-  const [category, merchant, amount, date] = row
-  return { category, merchant, amount, date }
+  const [ date, category, merchant, amount ] = row
+  const value = sanitizeTransactionAmount(amount)
+  return { date, category, merchant, amount: value }
 })
 
 console.log(rowObjs)
+console.log('Failed rows:\n', failedRows)
 
