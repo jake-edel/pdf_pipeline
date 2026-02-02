@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import "dotenv/config";
 import sanitationPipeline from "./textSanitation.ts";
 import handleRowSplit from "./handleRowSplit.ts";
+import handleDateFormat from "./dateUtils.ts";
 
 if (process.argv.length < 3) {
   console.log("No filename argument provided!");
@@ -21,22 +22,29 @@ try {
 const sanitizedText = sanitationPipeline.reduce((acc, fn) => fn(acc), text);
 const rows = handleRowSplit(sanitizedText)
 
-const hasValidRowLength = (row: string[]) => row.length === 4
-const sanitizeTransactionAmount = (val: string) => Number.parseFloat(val?.replaceAll(/[,|\s]/g, ""))
-
 const failedRows: string[][] = []
-const rowObjs = rows.filter((row, index )=> {
-  if (!hasValidRowLength(row)) {
+const validatedRows = rows.filter((row, index )=> {
+  if (row.length !== 4) {
     console.log(`Row Index ${index} failed length validation\n` + row + "\n")
     failedRows.push(row)
     return false
   }
-
-  const [ date, category, merchant, amount ] = row
-  const value = sanitizeTransactionAmount(amount)
-  return { date, category, merchant, amount: value }
+  return true
 })
 
-console.log(rowObjs)
-console.log('Failed rows:\n', failedRows)
+const rowObjs = validatedRows.map(row => {
+  const [ date, category, merchant, amount ] = row
 
+  const value = Number.parseFloat(amount?.replaceAll(/[,|\s]/g, ""))
+
+  const formattedDate = handleDateFormat(date)
+
+  return {
+    date: formattedDate,
+    category,
+    merchant,
+    amount: value
+  }
+})
+
+fs.writeFile('transactions.json', JSON.stringify(rowObjs))
