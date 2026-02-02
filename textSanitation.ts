@@ -51,10 +51,9 @@
     // Remove empty element at start
     // Inserted because rowDateRegexp has a capturing group
     parts.shift() 
-    
     const rows = [];
-    for (let i = 1; i < parts.length; i += 2) {
-      const row = (parts[i] + " " + parts[i + 1]).split("\n");
+    for (let i = 0; i < parts.length; i += 2) {
+      const row = (parts[i] + "\n" + parts[i + 1]).split("\n");
       rows.push(row)
     }
 
