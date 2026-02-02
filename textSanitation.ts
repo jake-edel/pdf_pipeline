@@ -30,8 +30,8 @@
       /\$/g
     ]
     const sanitizedText = regexChain.reduce(
-      (t, regexp) => t.replaceAll(regexp, "")
-      , text
+      (string, regexp) => string.replaceAll(regexp, ""),
+      text
     )
     
     return sanitizedText
