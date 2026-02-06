@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Parse PDF",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["run", "parse", "data/text/agosto 2025.txt"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
