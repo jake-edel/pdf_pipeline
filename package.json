@@ -7,6 +7,8 @@
   "type": "module",
   "main": "textToJson.ts",
   "scripts": {
+    "extract": "ls data/pdfs | ./extract_pdf_text.sh",
+    "parse": "node src/textToJson.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
