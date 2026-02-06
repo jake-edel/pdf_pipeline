@@ -20,31 +20,31 @@ try {
 }
 
 const sanitizedText = sanitationPipeline.reduce((acc, fn) => fn(acc), text);
-const rows = handleRowSplit(sanitizedText)
+const rows = handleRowSplit(sanitizedText);
 
-const failedRows: string[][] = []
-const validatedRows = rows.filter((row, index )=> {
+const failedRows: string[][] = [];
+const validatedRows = rows.filter((row, index) => {
   if (row.length !== 4) {
-    console.log(`Row Index ${index} failed length validation\n` + row + "\n")
-    failedRows.push(row)
-    return false
+    console.log(`Row Index ${index} failed length validation\n` + row + "\n");
+    failedRows.push(row);
+    return false;
   }
-  return true
-})
+  return true;
+});
 
-const rowObjs = validatedRows.map(row => {
-  const [ date, category, merchant, amount ] = row
+const rowObjs = validatedRows.map((row) => {
+  const [date, category, merchant, amount] = row;
 
-  const value = Number.parseFloat(amount?.replaceAll(/[,|\s]/g, ""))
+  const value = Number.parseFloat(amount?.replaceAll(/[,|\s]/g, ""));
 
-  const formattedDate = handleDateFormat(date)
+  const formattedDate = handleDateFormat(date);
 
   return {
     date: formattedDate,
     category,
     merchant,
-    amount: value
-  }
-})
+    amount: value,
+  };
+});
 
-fs.writeFile('transactions.json', JSON.stringify(rowObjs))
+fs.writeFile("transactions.json", JSON.stringify(rowObjs));
