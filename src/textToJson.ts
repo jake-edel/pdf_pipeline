@@ -47,4 +47,5 @@ const rowObjs = validatedRows.map((row) => {
   };
 });
 
-fs.writeFile("transactions.json", JSON.stringify(rowObjs));
+const outfileName = filename.split("/")?.[2].split('.')?.[0]
+fs.writeFile(`data/transactions/${outfileName}.json`, JSON.stringify(rowObjs));
