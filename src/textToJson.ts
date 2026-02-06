@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import "dotenv/config";
-import sanitationPipeline from "./textSanitation.ts";
-import handleRowSplit from "./handleRowSplit.ts";
-import handleDateFormat from "./dateUtils.ts";
+import sanitationPipeline from "./modules/sanitationPipeline.ts";
+import handleRowSplit from "./modules/handleRowSplit.ts";
+import handleDateFormat from "./modules/dateUtils.ts";
 
 if (process.argv.length < 3) {
   console.log("No filename argument provided!");
