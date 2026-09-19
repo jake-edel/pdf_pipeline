@@ -46,7 +46,7 @@ then
 
 	# Check that infile exists
 	if [[ ! -f "$PDF_DIR/$1" ]]; then
-		echo "Error: Infile '$1' not found"
+		echo "Error: Infile '$PDF_DIR/$1' not found"
 		exit 1
 	fi
 
@@ -68,8 +68,4 @@ else
 		convert_pdf "$infile" "$outfile"
 	done
 fi
-
-
-
-
 
