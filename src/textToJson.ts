@@ -22,11 +22,11 @@ try {
 const sanitizedText = sanitationPipeline.reduce((acc, fn) => fn(acc), text);
 const rows = handleRowSplit(sanitizedText);
 
-const failedRows: string[][] = [];
+const failedRows: string[] = [];
 const validatedRows = rows.filter((row, index) => {
   if (row.length !== 4) {
     console.log(`Row Index ${index} failed length validation\n` + row + "\n");
-    failedRows.push(row);
+    failedRows.push(row.join(" ,"));
     return false;
   }
   return true;
@@ -51,4 +51,9 @@ const rowObjs = validatedRows.map((row) => {
 const transactionsDir = path.join(process.cwd(),'data/transactions')
 const outfile = path.basename(filename, ".txt")
 const outfilePath = path.join(transactionsDir, outfile) + ".json"
+
+const failedRowsFile = outfile + "_failed.json"
+const failedRowsFilePath = path.join(transactionsDir, failedRowsFile)
+
 fs.writeFile(outfilePath, JSON.stringify(rowObjs));
+fs.writeFile(failedRowsFilePath, JSON.stringify(failedRows.join("\n")));
