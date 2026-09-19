@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import "dotenv/config";
+import path from "node:path"
 import sanitationPipeline from "./modules/sanitationPipeline.ts";
 import handleRowSplit from "./modules/handleRowSplit.ts";
 import handleDateFormat from "./modules/dateUtils.ts";
@@ -48,5 +48,7 @@ const rowObjs = validatedRows.map((row) => {
   };
 });
 
-const outfileName = filename.split("/")?.[2].split('.')?.[0]
-fs.writeFile(`data/transactions/${outfileName}.json`, JSON.stringify(rowObjs));
+const transactionsDir = path.join(process.cwd(),'data/transactions')
+const outfile = path.basename(filename, ".txt")
+const outfilePath = path.join(transactionsDir, outfile) + ".json"
+fs.writeFile(outfilePath, JSON.stringify(rowObjs));
