@@ -9,9 +9,10 @@ const filename = process.argv[2];
 const jsonString = await fs.readFile(filename, "utf-8");
 
 interface Transaction {
-  date: string;
-  category: string;
-  merchant: string;
+  date_transaction: string;
+  category_name: string;
+  opposing_name: string;
+  description: string;
   amount: number;
 }
 
@@ -19,7 +20,8 @@ const transactions: Transaction[] = JSON.parse(jsonString);
 
 const values = transactions
   .map(
-    (t) => `(\'${t.date}\', \'${t.merchant}\', ${t.amount}, \'${t.category}\')`,
+    (t) =>
+      `(\'${t.date_transaction}\', \'${t.opposing_name}\', ${t.amount}, \'${t.category_name}\')`,
   )
   .join(",\n");
 

@@ -40,9 +40,10 @@ const rowObjs = validatedRows.map((row) => {
   const formattedDate = handleDateFormat(date);
 
   return {
-    date: formattedDate,
-    category,
-    merchant,
+    date_transaction: formattedDate,
+    category_name: category,
+    opposing_name: merchant,
+    description: merchant,
     amount: value,
   };
 });
