@@ -2,15 +2,16 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" & pwd)"
-PDF_DIR="$SCRIPT_DIR/data/pdfs"
-TEXT_DIR="$SCRIPT_DIR/data/text"
+TEXT_DIR="$SCRIPT_DIR/text"
+
+infile="$1"
+base_infile="${infile##*/}"
+outfile="${base_infile%.pdf}.txt"
 
 convert_pdf() {
-	local infile="$1"
-	local outfile="$2"
 	local pages first_page last_page
 
-	pages=$(pdfinfo "$PDF_DIR/$infile" | awk '/^Pages:/ { print $2 }') || {
+	pages=$(pdfinfo "$infile" | awk '/^Pages:/ { print $2 }') || {
 		echo "Failed to read PDF info: $infile" >&2
 		return 1
 	}
@@ -25,7 +26,7 @@ convert_pdf() {
 	# Clear out form feed character
 	# Clear out empty lines
 	# Write out file
-	pdftotext -f $first_page -l $last_page -- "$PDF_DIR/$infile" - \
+	pdftotext -f $first_page -l $last_page -- "$infile" - \
 		| tr -d '\f' \
 		| sed '/^[[:space:]]*$/d' \
 		> "$TEXT_DIR/$outfile"
@@ -45,24 +46,14 @@ then
 	fi
 
 	# Check that infile exists
-	if [[ ! -f "$PDF_DIR/$1" ]]; then
-		echo "Error: Infile '$PDF_DIR/$1' not found"
+	if [[ ! -f "$1" ]]; then
+		echo "Error: Infile '$1' not found"
 		exit 1
 	fi
 
-	infile="$1"
-
-	# If there are two arguments, set the outfile
-	# Otherwise the outfile name is the same 
-	# as the infile replaced with a .txt extension
-	if (( $# == 2 )); then
-		outfile="$2"
-	else
-		outfile="${infile%.pdf}.txt"
-	fi
-
-	convert_pdf "$infile" "$outfile"
+  convert_pdf "$infile" "$outfile"
 else
+	# Bulk operation from list of files
 	while IFS= read -r infile; do
 		outfile="${infile%.pdf}.txt"
 		convert_pdf "$infile" "$outfile"
