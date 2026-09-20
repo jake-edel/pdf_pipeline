@@ -4,7 +4,7 @@ const rowDateRegexp =
 function splitIntoRows(text: string): string[] {
   // Split the text up on the date regex
   const rows = text.split(rowDateRegexp);
-  // The caputuring group will place each date
+  // The capturing group will place each date
   // into their own element in the array
   rows.shift();
 
