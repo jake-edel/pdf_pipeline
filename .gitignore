@@ -1,4 +1,4 @@
-.env
 node_modules
-data/*/*
-transactions.json
+pdfs/*
+text/*
+transactions/*
