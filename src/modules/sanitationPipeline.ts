@@ -1,6 +1,6 @@
 const rowDateRegexp =
-  /(\d{2} (?:ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|OCT|NOV|DIC))\n/;
-
+  /(\d{2} (?:ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|OCT|NOV|DIC))/;
+const transactionTableStartRegex = /movimiento\nMonto/;
 /**
  * Removes of the text in the string
  * leading up to the first transaction row
@@ -9,12 +9,10 @@ const rowDateRegexp =
 function removeIntroduction(text: string) {
   // Start looking for the first date tag (eg. ENE 01, DIC 31)
   // This should correspond with the start of the transactions table
-  const firstRowStart = text.match(rowDateRegexp);
+  // const firstRowStart = text.match(rowDateRegexp);
+  const firstRowStart = text.match(transactionTableStartRegex);
 
-  if (!firstRowStart?.[0]) {
-    console.log("Row Start Regex failed");
-    process.exit(1);
-  }
+  if (!firstRowStart?.[0]) throw new Error("Row Start Regex failed");
 
   const rowStartIndex = text.indexOf(firstRowStart[0]);
   const sanitizedText = text.slice(rowStartIndex);
@@ -29,6 +27,9 @@ function removePageElements(text: string) {
     /JAKOB ANDREW EDELSTEIN\nTARJETA:\s.*\n.*\nRFC:.*\n/g,
     /\d+ de \d+\n/g,
     /\$/g,
+    /^\n$/gm,
+    /Notas[\s\S]*?Fecha de cargo/gm,
+    /Tarjeta virtual.*\n/gm
   ];
   const sanitizedText = regexChain.reduce(
     (string, regexp) => string.replaceAll(regexp, ""),
@@ -47,18 +48,18 @@ function removeOutro(text: string) {
   return sanitizedText;
 }
 
-export function splitIntoRows(text: string): string[][] {
-  const parts = text.split(rowDateRegexp);
-  // Remove empty element at start
-  // Inserted because rowDateRegexp has a capturing group
-  parts.shift();
-  const rows = [];
-  for (let i = 0; i < parts.length; i += 2) {
-    const row = (parts[i] + "\n" + parts[i + 1]).split("\n");
-    rows.push(row);
-  }
-
-  return rows;
-}
+// export function splitIntoRows(text: string): string[][] {
+//   const parts = text.split(rowDateRegexp);
+//   // Remove empty element at start
+//   // Inserted because rowDateRegexp has a capturing group
+//   parts.shift();
+//   const rows = [];
+//   for (let i = 0; i < parts.length; i += 2) {
+//     const row = (parts[i] + "\n" + parts[i + 1]).split("\n");
+//     rows.push(row);
+//   }
+//
+//   return rows;
+// }
 
 export default [removeIntroduction, removeOutro, removePageElements];
