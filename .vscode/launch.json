@@ -2,12 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Parse PDF",
-      "type": "node",
+      "type": "pwa-node",
       "request": "launch",
-      "runtimeArgs": ["run", "parse", "data/text/agosto 2025.txt"],
-      "runtimeExecutable": "npm",
-      "skipFiles": ["<node_internals>/**"]
+      "name": "Text to JSON",
+      "program": "${workspaceFolder}/src/textToJson.ts",
+			"args": ["${workspaceFolder}/text/2026-09.txt"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [ "<node_internals>/**", "**/node_modules/**" ]
     }
   ]
 }
