@@ -7,10 +7,12 @@
   "type": "module",
   "main": "textToJson.ts",
   "scripts": {
-    "extract": "for f in pdfs/*.pdf; do ./extract_pdf_text.sh \"$f\"; done",
+    "extract": "./extract_pdf_text.sh",
+    "extract-all": "for f in pdfs/*.pdf; do npm run extract \"$f\"; done",
     "parse": "node src/textToJson.ts",
+    "parse-all": "for f in text/*.txt; do npm run parse \"$f\"; done",
     "csv": "node src/jsonToCsv.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "csv-all": "for f in transactions/*.json; do npm run csv \"$f\"; done"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
