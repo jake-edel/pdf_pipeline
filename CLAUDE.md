@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A manual, two-stage pipeline that turns monthly credit card statement PDFs (Nu México, Spanish-language, MXN) into a JSON array of transactions. The stages are run by hand on purpose during development; don't add orchestration or automation unless asked.
+A manual, three-stage pipeline that turns monthly credit card statement PDFs (Nu México, Spanish-language, MXN) into a JSON array of transactions, and from that into CSVs for Firefly III's Data Importer. The stages are run by hand on purpose during development; don't add orchestration or automation unless asked.
 
 ```
-pdfs/YYYY-MM.pdf --extract_pdf_text.sh--> text/YYYY-MM.txt --src/textToJson.ts--> transactions/YYYY-MM.json
+pdfs/YYYY-MM.pdf --extract_pdf_text.sh--> text/YYYY-MM.txt --src/textToJson.ts--> transactions/YYYY-MM.json --src/jsonToCsv.ts--> csv/YYYY-MM.csv
 ```
 
 `YYYY-MM` is the statement's **closing** month (e.g. `2026-04` covers 15 Mar – 14 Apr 2026). Downstream files inherit the PDF's base name.
@@ -24,6 +24,9 @@ npm run extract                                      # regenerate text/ for ever
 # Stage 2: text -> JSON
 node src/textToJson.ts text/2026-04.txt              # same as: npm run parse -- text/2026-04.txt
 
+# Stage 3: JSON -> Firefly III CSV (writes to csv/, relative to the cwd)
+node src/jsonToCsv.ts transactions/2026-04.json      # same as: npm run csv -- transactions/2026-04.json
+
 # Checks
 tsc                                                  # type-check only (noEmit); global tsc from ~/.dotfiles/nvim/lsp-tools
 npx eslint                                           # typescript-eslint recommended rules
@@ -31,7 +34,7 @@ npx eslint                                           # typescript-eslint recomme
 
 `tsc` is deliberately not a project dependency; it's a global install (5.9.3). A local `typescript@5.9.3` is pinned in devDependencies only because `typescript-eslint` imports it, and it should be kept in step with the global one. `tsconfig.json` sets `erasableSyntaxOnly`, so avoid enums, namespaces and parameter properties (Node's type stripping can't run them).
 
-`pdfs/`, `text/`, `transactions/` are gitignored and hold real financial data. `wip/` (untracked) is scratch output for in-progress parser work.
+`pdfs/`, `text/`, `transactions/`, `csv/` are gitignored and hold real financial data. `wip/` (untracked) is scratch output for in-progress parser work.
 
 ## Two statement formats
 
@@ -56,7 +59,7 @@ Row-lookalikes that must not be parsed as transactions: the new format's page-3 
 
 `src/textToJson.ts` is the entry point: read text file, `detectFormat`, run the format's parser, validate, write JSON. Unparsable row-like lines go to `<name>_failed.json` (removed again on a clean run). Validation failures are printed and set exit code 1; the JSON is still written.
 
-Output row shape (built in `toOutput`, the one place that knows the target format): `{ date_transaction (ISO date), category_name (null when absent), opposing_name, description, amount }`. Charges are positive, payments/credits negative. The new format's `date_transaction` is the operation date (the charge date is parsed onto `Row.dateCharge` but not emitted). The output is eventually imported into Firefly III; that mapping (sign flip, payments as transfers, CSV) is deliberately deferred.
+JSON row shape (the `Transaction` type in `modules/transaction.ts`, built by `toTransaction`): `{ date_transaction (ISO date), category_name (null when absent), opposing_name, description, amount }`. Charges are positive, payments/credits negative. The new format's `date_transaction` is the operation date (the charge date is parsed onto `Row.dateCharge` but not emitted). The JSON is statement-faithful and Firefly-agnostic; everything Firefly-specific lives in stage 3.
 
 `src/modules/`:
 - `detectFormat.ts`: `old` vs `new`, same test as the extract script.
@@ -64,6 +67,20 @@ Output row shape (built in `toOutput`, the one place that knows the target forma
 - `parse.ts`: `Row` type (amounts in integer cents) and `parseAmount`.
 - `dateUtils.ts`: month map, `toIsoDate` (UTC, timezone-independent), and year resolution from the statement period for old-format rows.
 - `validate.ts`: new format, row sums must equal the printed `Total de cargos` / `Total de abonos`. Old format, `Saldo final` minus the row sum must equal the previous statement's `Saldo final` (read from the previous month's text file; skipped if it's absent, e.g. 2025-06). Both hold exactly for all current files.
+
+## Stage 3: Firefly III CSV
+
+`src/jsonToCsv.ts` reads one `transactions/YYYY-MM.json` (checked with `isTransactionList`) and writes `csv/YYYY-MM.csv`. It reads only the JSON, never the text, so re-running it doesn't re-parse anything. Modules: `csv.ts` (generic RFC 4180 writer; merchants like `Crédito de "AMAZON"` contain quotes) and `firefly.ts` (everything Firefly-specific).
+
+The **header row is the Data Importer role id of each column**, in this order: `date_transaction, description, amount_negated, opposing-name, category-name, external-id`. Note the importer's ids use hyphens (`opposing-name`, `category-name`) while the JSON keys use underscores.
+
+- **Amounts keep the statement's sign** (charge +, payment −). The importer's `amount_negated` role flips it, which is what Firefly's maintainer recommends for card statements. Don't flip signs in our code.
+- **Card payments are omitted** (`isCardPayment`: negative, and `Pago a tu tarjeta de crédito` or `¡Grácias por tu pago!`), because the bank account is imported too and creates the transfer from its side. The script logs `skipped N payment row(s)`; if the bank rewords the payment line it would slip through as a deposit, so extend the regexp. Refunds (`Devolución`, `Crédito de "…"`, `Abono de "…"`) are kept.
+- **`external-id`** = `<statement>-<12 hex of sha1(statement | merchant | cents | occurrence)>`, where `occurrence` counts identical merchant+amount rows earlier in the same file. It exists because rows identical on date, merchant and amount are real (2025-12 has some) and Firefly's default content-hash duplicate detection would silently drop them. The date is deliberately not part of the id, so switching between operation/charge date doesn't change ids. Ids are content-derived: once a file is imported, a parser change that alters a merchant string would make its rows look new.
+
+The importer config is built once by the user in the Data Importer UI (their saved mappings live there; we don't generate it). Settings it needs: flow CSV, date format `Y-m-d`, delimiter comma, headers yes, roles = the header row above, duplicate detection by identifier (`cell`) on the `external-id` column, target = the card as an **asset account** (credit-card role, `default_account`). Optional: apply rules (categorises the category-less new-format rows), mappings for `opposing-name`/`category-name`. Unverified until a first real import: whether empty `category-name` cells are ignored, and whether `unique_column_index` is 0- or 1-based (the UI selects the column).
+
+Not done on purpose: generating the importer config, a `date_book` column for the charge date, foreign-currency columns, merchant normalisation (left to Firefly rules/mapping; ~190 distinct merchant names so far).
 
 ## Known state and gotchas
 
