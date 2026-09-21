@@ -9,6 +9,7 @@
   "scripts": {
     "extract": "for f in pdfs/*.pdf; do ./extract_pdf_text.sh \"$f\"; done",
     "parse": "node src/textToJson.ts",
+    "csv": "node src/jsonToCsv.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
