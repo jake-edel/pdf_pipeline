@@ -2,3 +2,4 @@ node_modules
 pdfs/*
 text/*
 transactions/*
+csv/*
