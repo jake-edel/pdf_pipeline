@@ -48,12 +48,17 @@ const rowObjs = validatedRows.map((row) => {
   };
 });
 
-const transactionsDir = path.join(process.cwd(),'data/transactions')
+const transactionsDir = path.join(process.cwd(),'/transactions')
 const outfile = path.basename(filename, ".txt")
 const outfilePath = path.join(transactionsDir, outfile) + ".json"
+try {
+  await fs.writeFile(outfilePath, sanitizedText);
+} catch (e) {
+  throw new Error(`Write to ${outfilePath} failed.`, { cause: e })
+}
 
-const failedRowsFile = outfile + "_failed.json"
-const failedRowsFilePath = path.join(transactionsDir, failedRowsFile)
-
-fs.writeFile(outfilePath, JSON.stringify(rowObjs));
-fs.writeFile(failedRowsFilePath, JSON.stringify(failedRows.join("\n")));
+if (failedRows.length !== 0) {
+  const failedRowsFile = outfile + "_failed.json"
+  const failedRowsFilePath = path.join(transactionsDir, failedRowsFile)
+  fs.writeFile(failedRowsFilePath, JSON.stringify(failedRows.join("\n")));
+}
