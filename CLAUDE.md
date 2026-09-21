@@ -7,23 +7,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A manual, two-stage pipeline that turns monthly credit card statement PDFs (Nu México, Spanish-language, MXN) into a JSON array of transactions. The stages are run by hand on purpose during development; don't add orchestration or automation unless asked.
 
 ```
-pdfs/<month YYYY>.pdf --extract_pdf_text.sh--> text/<month YYYY>.txt --src/textToJson.ts--> transactions/<month YYYY>.json
+pdfs/YYYY-MM.pdf --extract_pdf_text.sh--> text/YYYY-MM.txt --src/textToJson.ts--> transactions/YYYY-MM.json
 ```
+
+`YYYY-MM` is the statement's **closing** month (e.g. `2026-04` covers 15 Mar – 14 Apr 2026). Downstream files inherit the PDF's base name.
 
 ## Commands
 
-Requires `poppler-utils` (`pdftotext`, `pdfinfo`) and Node with native TypeScript support (runs `.ts` directly, no build step, imports use the `.ts` extension). There is no test suite, linter, or tsconfig.
+Requires `poppler-utils` (`pdftotext`, `pdfinfo`) and Node with native TypeScript support (runs `.ts` directly, no build step, imports use the `.ts` extension). There is no test suite.
 
 ```bash
 # Stage 1: PDF -> text (writes to text/, always relative to the script's location)
-./extract_pdf_text.sh "pdfs/abril 2026.pdf"          # one file
-ls pdfs/*.pdf | ./extract_pdf_text.sh                # bulk: one path per line on stdin
+./extract_pdf_text.sh pdfs/2026-04.pdf               # one file
+npm run extract                                      # regenerate text/ for every PDF in pdfs/
 
 # Stage 2: text -> JSON
-node src/textToJson.ts "text/abril 2026.txt"         # same as: npm run parse -- "text/abril 2026.txt"
+node src/textToJson.ts text/2026-04.txt              # same as: npm run parse -- text/2026-04.txt
+
+# Checks
+tsc                                                  # type-check only (noEmit); global tsc from ~/.dotfiles/nvim/lsp-tools
+npx eslint                                           # typescript-eslint recommended rules
 ```
 
-Filenames contain spaces; always quote them.
+`tsc` is deliberately not a project dependency; it's a global install (5.9.3). A local `typescript@5.9.3` is pinned in devDependencies only because `typescript-eslint` imports it, and it should be kept in step with the global one. `tsconfig.json` sets `erasableSyntaxOnly`, so avoid enums, namespaces and parameter properties (Node's type stripping can't run them).
 
 `pdfs/`, `text/`, `transactions/` are gitignored and hold real financial data. `wip/` (untracked) is scratch output for in-progress parser work.
 
