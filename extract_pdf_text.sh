@@ -77,6 +77,6 @@ then
 		exit 1
 	fi
 else
-	echo "Usage: $0 <infile>, or pipe a list of files: ls dir/*.pdf | $0" >&2
+	echo "Usage: $0 <infile>, or pipe a list of files: printf '%s\n' dir/*.pdf | $0" >&2
 	exit 1
 fi
