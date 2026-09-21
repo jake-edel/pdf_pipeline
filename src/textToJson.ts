@@ -4,7 +4,7 @@ import detectFormat from "./modules/detectFormat.ts";
 import parseNewFormat from "./modules/formats/newFormat.ts";
 import parseOldFormat, { readSaldoFinal } from "./modules/formats/oldFormat.ts";
 import validate from "./modules/validate.ts";
-import type { Row } from "./modules/parse.ts";
+import { toTransaction } from "./modules/transaction.ts";
 
 if (process.argv.length < 3) {
   console.log("No filename argument provided!");
@@ -61,20 +61,11 @@ if (errors.length > 0) {
   process.exitCode = 1;
 }
 
-// The one place that knows the output shape
-const toOutput = (row: Row) => ({
-  date_transaction: row.dateTransaction,
-  category_name: row.category,
-  opposing_name: row.merchant,
-  description: row.merchant,
-  amount: row.cents / 100,
-});
-
 const transactionsDir = path.join(process.cwd(), "/transactions");
 const outfile = path.basename(filename, ".txt");
 const outfilePath = path.join(transactionsDir, outfile) + ".json";
 try {
-  await fs.writeFile(outfilePath, JSON.stringify(parsed.rows.map(toOutput)));
+  await fs.writeFile(outfilePath, JSON.stringify(parsed.rows.map(toTransaction)));
 } catch (e) {
   throw new Error(`Write to ${outfilePath} failed.`, { cause: e });
 }
