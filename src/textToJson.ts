@@ -52,7 +52,7 @@ const transactionsDir = path.join(process.cwd(),'/transactions')
 const outfile = path.basename(filename, ".txt")
 const outfilePath = path.join(transactionsDir, outfile) + ".json"
 try {
-  await fs.writeFile(outfilePath, sanitizedText);
+  await fs.writeFile(outfilePath, JSON.stringify(rowObjs));
 } catch (e) {
   throw new Error(`Write to ${outfilePath} failed.`, { cause: e })
 }
