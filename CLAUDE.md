@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
 ## What this is
 
-A manual, three-stage pipeline that turns monthly credit card statement PDFs (Nu México, Spanish-language, MXN) into a JSON array of transactions, and from that into CSVs for Firefly III's Data Importer. The stages are run by hand on purpose during development; don't add orchestration or automation unless asked.
+A manual, three-stage pipeline that turns monthly credit card statement PDFs (Nu México, Spanish-language, MXN) into a JSON array of transactions, and from that into CSVs for Firefly III's Data Importer. The stages are run by hand on purpose during development.
 
 ```
 pdfs/YYYY-MM.pdf --extract_pdf_text.sh--> text/YYYY-MM.txt --src/textToJson.ts--> transactions/YYYY-MM.json --src/jsonToCsv.ts--> csv/YYYY-MM.csv
@@ -26,13 +26,7 @@ node src/textToJson.ts text/2026-04.txt              # same as: npm run parse --
 
 # Stage 3: JSON -> Firefly III CSV (writes to csv/, relative to the cwd)
 node src/jsonToCsv.ts transactions/2026-04.json      # same as: npm run csv -- transactions/2026-04.json
-
-# Checks
-tsc                                                  # type-check only (noEmit); global tsc from ~/.dotfiles/nvim/lsp-tools
-npx eslint                                           # typescript-eslint recommended rules
 ```
-
-`tsc` is deliberately not a project dependency; it's a global install (5.9.3). A local `typescript@5.9.3` is pinned in devDependencies only because `typescript-eslint` imports it, and it should be kept in step with the global one. `tsconfig.json` sets `erasableSyntaxOnly`, so avoid enums, namespaces and parameter properties (Node's type stripping can't run them).
 
 `pdfs/`, `text/`, `transactions/`, `csv/` are gitignored and hold real financial data. `wip/` (untracked) is scratch output for in-progress parser work.
 
@@ -82,6 +76,4 @@ The importer config is built once by the user in the Data Importer UI (their sav
 
 Not done on purpose: generating the importer config, a `date_book` column for the charge date, foreign-currency columns, merchant normalisation (left to Firefly rules/mapping; ~190 distinct merchant names so far).
 
-## Known state and gotchas
-
-- `README.md` and `.vscode/launch.json` still reference an old `data/` directory layout and the README mentions an OpenAI API step that isn't in the code; treat them as stale.
+The generated Firefly III import config lives in the root directory for reference.
