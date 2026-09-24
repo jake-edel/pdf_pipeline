@@ -3,9 +3,7 @@
  * `CategoryModel`, the data object `classify()` scores new merchants
  * against.
  *
- * This is stage 2 of the category engine (see tokenize.ts for stage 1
- * and notes/category-engine-design.md for the full design). Everything
- * here is COUNTING, not deciding — this module never computes a
+ * Everything here is COUNTING, not deciding — this module never computes a
  * probability, never picks a winning category, never applies a
  * threshold. It reads every (merchant, category) pair we have evidence
  * for, tokenizes each merchant, and tallies how often each word showed
@@ -74,29 +72,6 @@
  * (`"Depot"`) rather than the full merchant string — no code change
  * needed, just a more deliberate choice of key.
  *
- * WHAT THIS MODULE INTENTIONALLY DOES NOT DO (a change from the
- * original design doc, worth recording here since this file is as much
- * a decision log as it is code):
- *
- * The original design had a second output, `exactMatches` — a
- * normalized-merchant-string -> category map, built from history, used
- * as a deterministic fast path before ever consulting the classifier.
- * On reflection that bought less than it looked like: Laplace smoothing
- * already makes Bayes overwhelmingly confident about any merchant whose
- * words are well-attested in history (a word seen 14/14 times under one
- * category swamps the smoothed near-zero probability everywhere else),
- * so for the common case — a merchant we've genuinely seen a lot —
- * `exactMatches` and "just run the classifier" agree anyway. The one
- * place determinism actually mattered was making a hand-written POLICY
- * ENTRY reliably "stick" the moment it's added, which is a property of
- * the policy file specifically, not of history in general. So that
- * responsibility moved to `decide()`, which checks the policy file
- * directly (a plain exact-key lookup, no tokenizing) before ever calling
- * `classify()`. This module doesn't need to know about that at all — it
- * just folds policy entries into the same counts as everything else,
- * same as history. Net effect: one less field on `CategoryModel`, one
- * less normalized string table to keep in sync, no loss of the one
- * property (stickiness) that actually justified the complexity.
  */
 
 import { isCardPayment } from "../firefly.ts";
