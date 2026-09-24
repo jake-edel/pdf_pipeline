@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import detectFormat from "./modules/detectFormat.ts";
+import detectFormat from "./modules/formats/detectFormat.ts";
 import parseNewFormat from "./modules/formats/newFormat.ts";
 import parseOldFormat, { readSaldoFinal } from "./modules/formats/oldFormat.ts";
 import validate from "./modules/validate.ts";
