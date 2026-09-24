@@ -15,11 +15,11 @@ let json: unknown;
 try {
   json = JSON.parse(await fs.readFile(filename, "utf-8"));
 } catch {
-  console.log("Error reading JSON file!");
+  console.error("Error reading JSON file!");
   process.exit(1);
 }
 if (!isTransactionList(json)) {
-  console.log("File is not a list of transactions!");
+  console.error("File is not a list of transactions!");
   process.exit(1);
 }
 
