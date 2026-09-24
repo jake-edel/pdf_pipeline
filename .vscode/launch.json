@@ -14,8 +14,8 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "Tokenize Merchants",
-      "program": "${workspaceFolder}/src/getCategories.ts",
+      "name": "Run Scratchpad",
+      "program": "${workspaceFolder}/src/scratchpad.ts",
 			"args": ["${workspaceFolder}/text/2025-06.txt"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
