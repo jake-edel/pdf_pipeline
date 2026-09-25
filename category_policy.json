@@ -1,0 +1,42 @@
+{
+  "Farmacias Similares Cun": "Farmacia",
+  "F Ahorro Ceig Iguala": "Farmacia",
+  "Otros Ingresos": "Otros",
+  "Qualitas": "Seguro",
+  "Steamgames.Com": "Tiempo libre",
+  "Oxxo": {
+    "category": "Oxxo",
+    "weight": 30
+  },
+
+  "Home Depot": {
+    "category": "Ferreteria",
+    "weight": 30
+  },
+  
+  "Cenote": {
+    "category": "Tiempo libre",
+    "weight": 30
+  },
+
+  "Amazon": {
+    "category": "Amazon",
+    "weight": 50
+  },
+
+  "Electrica Herrera": "Ferreteria",
+  "Tlapaler": {
+    "category": "Ferreteria",
+    "weight": 30
+  },
+
+  "Ferreteria": {
+    "category": "Ferreteria",
+    "weight": 30
+  },
+
+  "Ferr": {
+    "category": "Ferreteria",
+    "weight": 30
+  }
+}
