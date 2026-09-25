@@ -265,10 +265,6 @@ export function buildModel(
     );
   }
 
-  // Computed once, at the end, from the finished word table — this is a
-  // summary of the corpus, not something to track incrementally as we
-  // go (it would just mean recomputing `.size` after every insert
-  // instead of once here).
   const vocabularySize = wordCategoryCounts.size;
 
   return {
