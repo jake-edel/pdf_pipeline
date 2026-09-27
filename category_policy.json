@@ -25,22 +25,28 @@
   "Str*Amazon": "Amazon",
   "Amazon": {
     "category": "Amazon",
-    "weight": 50
+    "weight": 30
   },
-
+  "V J Tornillos Y Herram": "Ferreteria",
   "Electrica Herrera": "Ferreteria",
+  "Ferret Jaurez Sayer": "Ferreteria",
   "Tlapaler": {
     "category": "Ferreteria",
-    "weight": 30
+    "weight": 10
   },
 
   "Ferreteria": {
     "category": "Ferreteria",
-    "weight": 30
+    "weight": 10
   },
 
   "Ferr": {
     "category": "Ferreteria",
+    "weight": 10
+  },
+
+  "Costco": {
+    "category": "Costco",
     "weight": 30
   }
 }
