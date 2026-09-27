@@ -18,7 +18,7 @@ for (const file of files) {
   }
 }
 
-const policyFile = "/home/jakobedel/Projects/pdf_pipeline/category_policy.sample.json"
+const policyFile = "/home/jakobedel/Projects/pdf_pipeline/category_policy.json"
 const categoryPolicy = JSON.parse(fs.readFileSync(policyFile).toString());
 const model = buildModel(allTransactions, categoryPolicy)
 
