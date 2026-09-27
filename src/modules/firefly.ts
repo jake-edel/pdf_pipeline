@@ -40,7 +40,7 @@ const columns: {
   { header: "description", value: (t) => t.description },
   { header: "amount_negated", value: (t) => t.amount.toFixed(2) },
   { header: "opposing-name", value: (t) => t.opposing_name },
-  { header: "category-name", value: (t) => t.category_name ?? "" },
+  { header: "category-name", value: (t) => t.category_name ?? "Undecided" },
   { header: "external-id", value: (_, externalId) => externalId },
 ];
 
