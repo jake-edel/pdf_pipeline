@@ -2,7 +2,10 @@
   "Farmacias Similares Cun": "Farmacia",
   "F Ahorro Ceig Iguala": "Farmacia",
   "Otros Ingresos": "Otros",
-  "Qualitas": "Seguro",
+  "Qualitas": {
+    "category": "Seguro",
+    "weight": 30
+  },
   "Steamgames.Com": "Tiempo libre",
   "Oxxo": {
     "category": "Oxxo",
@@ -19,6 +22,7 @@
     "weight": 30
   },
 
+  "Str*Amazon": "Amazon",
   "Amazon": {
     "category": "Amazon",
     "weight": 50
