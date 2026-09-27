@@ -27,13 +27,20 @@ const transactionsWithoutCategory = allTransactions.filter(transaction => {
   return transaction.category_name === null;
 })
 
-// const rl = readline.createInterface({ input: process.stdin });
+
 let count = 1;
 for (const transaction of transactionsWithoutCategory) {
   const merchant = transaction.opposing_name
   const scores = classify(merchant, model);
-  console.log(`${count}. ${merchant}: ${scores[0].category}`);
-  // await rl.question("");
+  const [first, second, third] = scores;
+
+  console.log(
+    `\n${count}. ${merchant}\n` + 
+    `${first.category}: ${first.score}\n` +
+    `${second.category}: ${second.score}\n` +
+    `${third.category}: ${third.score}\n`
+  );
+
   count++;
 }
 
