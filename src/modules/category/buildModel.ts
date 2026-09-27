@@ -103,7 +103,7 @@ export type CategoryPolicyEntry = string | { category: string; weight: number };
 /** `category_policy.json`, loaded: `{ "key": CategoryPolicyEntry }`. */
 export type CategoryPolicy = Record<string, CategoryPolicyEntry>;
 
-function normalizePolicyEntry(entry: CategoryPolicyEntry): {
+export function normalizePolicyEntry(entry: CategoryPolicyEntry): {
   category: string;
   weight: number;
 } {
