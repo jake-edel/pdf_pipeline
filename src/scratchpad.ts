@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import process from "node:process";
-import readline from "node:readline/promises";
 import { buildModel } from "./modules/category/buildModel.ts";
 import type { Transaction } from "./modules/transaction.ts";
 import { classify } from "./modules/category/classify.ts";
