@@ -1,12 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { toCsv } from "./modules/csv.ts";
-import { buildModel } from "./modules/category/buildModel.ts";
-import type { CategoryPolicy } from "./modules/category/buildModel.ts";
+import type {
+  CategoryModel,
+  CategoryPolicy,
+} from "./modules/category/buildModel.ts";
 import { decide } from "./modules/category/decide.ts";
+import { deserializeModel } from "./modules/category/modelFile.ts";
 import { toFireflyTable } from "./modules/firefly.ts";
 import { isTransactionList } from "./modules/transaction.ts";
-import type { Transaction } from "./modules/transaction.ts";
 
 if (process.argv.length < 3) {
   console.log("No filename argument provided!");
@@ -27,23 +29,21 @@ if (!isTransactionList(json)) {
   process.exit(1);
 }
 
-// Category history for the classifier: every transaction we have, across
-// every statement, categorized or not — buildModel() only keeps the rows
-// that actually carry a bank-printed category.
-const transactionsDir = path.join(process.cwd(), "transactions");
-const history: Transaction[] = [];
-for (const file of await fs.readdir(transactionsDir)) {
-  const data = JSON.parse(
-    await fs.readFile(path.join(transactionsDir, file), "utf-8"),
-  );
-  if (isTransactionList(data)) history.push(...data);
-}
-
 const policy = JSON.parse(
   await fs.readFile(path.join(process.cwd(), "category_policy.json"), "utf-8"),
 ) as CategoryPolicy;
 
-const model = buildModel(history, policy);
+// Built separately by buildCategoryModel.ts (npm run model), so every run
+// classifies against the same model and its counts can be inspected.
+const modelPath = path.join(process.cwd(), "model", "category_model.json");
+let model: CategoryModel;
+try {
+  model = deserializeModel(await fs.readFile(modelPath, "utf-8"));
+} catch (e) {
+  console.error(`Error reading ${modelPath}! Run \`npm run model\` first.`);
+  console.error(e);
+  process.exit(1);
+}
 
 // The JSON on disk stays statement-faithful (null stays null) — categories
 // are decided here, in memory, only for the CSV this run produces.

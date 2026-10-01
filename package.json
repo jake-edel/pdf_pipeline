@@ -11,8 +11,9 @@
     "extract-all": "for f in pdfs/*.pdf; do npm run extract \"$f\"; done",
     "parse": "node src/textToJson.ts",
     "parse-all": "for f in text/*.txt; do node src/textToJson.ts \"$f\"; done",
+    "model": "node src/buildCategoryModel.ts",
     "csv": "node src/jsonToCsv.ts",
-    "csv-all": "for f in transactions/*.json; do  node src/jsonToCsv.ts \"$f\"; done && rm -f ./csv/all.csv && touch ./csv/all.csv && for f in ./csv/*-*.csv; do sed '1d' \"$f\" >> ./csv/all.csv; done"
+    "csv-all": "npm run model && for f in transactions/*.json; do  node src/jsonToCsv.ts \"$f\"; done && rm -f ./csv/all.csv && touch ./csv/all.csv && for f in ./csv/*-*.csv; do sed '1d' \"$f\" >> ./csv/all.csv; done"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
