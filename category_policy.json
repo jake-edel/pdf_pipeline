@@ -1,25 +1,36 @@
 {
   "Otros Ingresos": "Otros",
+
   "Qualitas": {
     "category": "Seguro",
     "weight": 30
   },
+
 	"Farm Guad": "Salud",
 	"Hosp Henri Dunant": "Salud",
 	"Ident": "Salud",
 	"329 Devlyn Plaza Carme": "Salud",
+	"Farmacia Uni": "Salud",
+
   "Steamgames.Com": "Tiempo libre",
   "Wl *Steam Purchase": "Tiempo libre",
   "All4padelpdc": "Tiempo libre",
   "Cinepolis Web": "Tiempo libre",
+
 	"Vivero Los Pinos": "Hogar",
+
+  "Telcel": "Cellular",
   "T1 Telcel Pyre": "Cellular",
   "T1 Telcel Pyr": "Cellular",
   "Telcel Claro2miniapp": "Cellular",
+
+	"Merpago*Mercadolibre": "Amazon",
   "Str*Amazon": "Amazon",
   "Stripe *Amazon": "Amazon",
-  "Amazon": "Amazon",
-  "Merpago*Mercadolibre": "Amazon",
+  "Amazon": {
+		"category": "Amazon",
+		"weight": 30
+	},
   "Home Depot": "Ferreteria",
   "Home Depot Playa Del C": "Ferreteria",
   "V J Tornillos Y Herram": "Ferreteria",
@@ -27,6 +38,8 @@
   "Electrica Herrera": "Ferreteria",
   "Madereria Martinez": "Ferreteria",
   "Ferret Jaurez Sayer": "Ferreteria",
+  "Ferre Mat Mv": "Ferreteria",
+  "Mercadopago *Tlapaler": "Ferreteria",
   "Tlapaler": {
     "category": "Ferreteria",
     "weight": 10
@@ -43,12 +56,17 @@
     "category": "Costco",
     "weight": 50
   },
+
 	"Bizzaro Averanda": "Ropa",
 	"Zara Cancun Americas": "Ropa",
+
 	"Supercenter Petempich": "Supermercado",
 	"Soriana957 Casdelaselv": "Supermercado",
 	"Wm Express Zapata": "Supermercado",
 	"7 Eleven": "Supermercado",
+	"7eleven T897 Sayulita": "Supermercado",
+	"Aki Bacalar": "Supermercado",
+
   "Viva Aerobus Cib": "Viaje",
   "Vivaaerobus Web": "Viaje",
   "Taquillas Yal Ku": "Viaje",
@@ -58,14 +76,21 @@
   "Autob 1a Clase Cib": "Viaje",
   "Aeromexico Web Pn": "Viaje",
   "Aicm T1": "Viaje",
+
   "Gasol Es Capote": "Transporte",
   "Gasol Handall Baca": "Transporte",
+  "Gas Suc Arrecifes": "Transporte",
+
   "Steren": "Electronicos",
   "Steren Eec": "Electronicos",
   "Anthropic* Claude Sub": "Electronicos",
   "Claude.Ai Subscription": "Electronicos",
+  "Openai *Chatgpt Subscr": "Electronicos",
+
   "Johnny D Burger": "Restaurante",
   "la Gringa": "Restaurante",
+  "la Gringa de Galvan": "Restaurante",
+  "Dominos Unv Cuernavaca": "Restaurante",
   "El Gran Taco": "Restaurante",
   "Cafe Nader Huayacan": "Restaurante",
   "la Barracuda": "Restaurante",
@@ -76,10 +101,16 @@
   "Wings Davos Tequis": "Restaurante",
   "Mercadopago*Amorbuen": "Restaurante",
   "Cafe Alondra": "Restaurante",
+	"Sta Clara Averanda": "Restaurante",
+	"Garden Cuernavaca": "Restaurante",
   "Taqueria Arandas": "Restaurante",
+  "Taqueria Los Mejores": "Restaurante",
   "Bostons Pizza Playa": "Restaurante",
   "Restaurante Zama": "Restaurante",
   "Loro Tequis": "Restaurante",
+  "Green Fit": "Restaurante",
+  "Mercadopago *Paparazz": "Restaurante",
+
 	"la Barberia": "Servicio",
 	"Stripe* Peritos Traduc": "Servicio",
 	"Dhl Plaza Del Carmen": "Servicio",
