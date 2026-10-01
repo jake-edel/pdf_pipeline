@@ -33,7 +33,8 @@ export function decide(
     return normalizePolicyEntry(policyEntry).category;
   }
 
-  const [top] = classify(merchant, model);
+  const classification = classify(merchant, model);
+  const [top] = classification;
   if (top !== undefined && top.score > threshold) {
     return top.category;
   }
