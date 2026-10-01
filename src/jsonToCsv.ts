@@ -37,7 +37,9 @@ if (!isTransactionList(json)) {
 const transactionsDir = path.join(process.cwd(), "transactions");
 const history: Transaction[] = [];
 for (const file of await fs.readdir(transactionsDir)) {
-  const data = JSON.parse(await fs.readFile(path.join(transactionsDir, file), "utf-8"));
+  const data = JSON.parse(
+    await fs.readFile(path.join(transactionsDir, file), "utf-8"),
+  );
   if (isTransactionList(data)) history.push(...data);
 }
 
@@ -50,11 +52,15 @@ const model = buildModel(history, policy);
 // The JSON on disk stays statement-faithful (null stays null) — categories
 // are decided here, in memory, only for the CSV this run produces.
 const categorized = json.map((transaction) => {
-  // const category = transaction.category_name === null
-  //   ? decide(transaction.opposing_name, model, policy, CATEGORY_CONFIDENCE_THRESHOLD)
-  //   : transaction.category_name
-
-  return { ...transaction, category_name: decide(transaction.opposing_name, model, policy, CATEGORY_CONFIDENCE_THRESHOLD)}
+  return {
+    ...transaction,
+    category_name: decide(
+      transaction.opposing_name,
+      model,
+      policy,
+      CATEGORY_CONFIDENCE_THRESHOLD,
+    ),
+  };
 });
 
 const statement = path.basename(filename, ".json");
