@@ -15,8 +15,8 @@
       "type": "pwa-node",
       "request": "launch",
       "name": "JSON to CSV",
-      "program": "${workspaceFolder}/src/jsonToCsv.ts",
-			"args": ["${workspaceFolder}/transactions/2026-02.json"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "csv-all"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "skipFiles": [ "<node_internals>/**", "**/node_modules/**" ]
