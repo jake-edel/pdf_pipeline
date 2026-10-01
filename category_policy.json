@@ -1,52 +1,57 @@
 {
-  "Farmacias Similares Cun": "Farmacia",
-  "F Ahorro Ceig Iguala": "Farmacia",
   "Otros Ingresos": "Otros",
   "Qualitas": {
     "category": "Seguro",
     "weight": 30
   },
   "Steamgames.Com": "Tiempo libre",
-  "Oxxo": {
-    "category": "Oxxo",
-    "weight": 30
-  },
-
-  "Home Depot": {
-    "category": "Ferreteria",
-    "weight": 30
-  },
-  
-  "Cenote": {
-    "category": "Tiempo libre",
-    "weight": 30
-  },
-
+  "All4padelpdc": "Tiempo libre",
+  "T1 Telcel Pyre": "Cellular",
+  "T1 Telcel Pyr": "Cellular",
+  "Telcel Claro2miniapp": "Cellular",
   "Str*Amazon": "Amazon",
+  "Stripe *Amazon": "Amazon",
   "Amazon": {
     "category": "Amazon",
     "weight": 30
   },
+  "Home Depot": {
+    "category": "Ferreteria",
+    "weight": 30
+  },
   "V J Tornillos Y Herram": "Ferreteria",
+  "Toms Ferreteria Ejido": "Ferreteria",
   "Electrica Herrera": "Ferreteria",
+  "Madereria Martinez": "Ferreteria",
   "Ferret Jaurez Sayer": "Ferreteria",
   "Tlapaler": {
     "category": "Ferreteria",
     "weight": 10
   },
-
   "Ferreteria": {
     "category": "Ferreteria",
     "weight": 10
   },
-
   "Ferr": {
     "category": "Ferreteria",
     "weight": 10
   },
-
   "Costco": {
     "category": "Costco",
-    "weight": 30
-  }
+    "weight": 50
+  },
+  "Viva Aerobus Cib": "Viaje",
+  "Vivaaerobus Web": "Viaje",
+  "Taquillas Yal Ku": "Viaje",
+  "Ado Web Accertify": "Viaje",
+  "Gasol Es Capote": "Transporte",
+  "Steren": "Electronicos",
+  "Johnny D Burger": "Restaurante",
+  "El Gran Taco": "Restaurante",
+  "la Barracuda": "Restaurante",
+  "Oplinea*Sakuraramen": "Restaurante",
+  "Pozoleria Castillo": "Restaurante",
+  "Alim Petit Gourmet Sat": "Restaurante",
+  "Wings Davos Tequis": "Restaurante"
+
 }
