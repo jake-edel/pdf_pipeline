@@ -1,15 +1,11 @@
 /**
- * decide.ts — turns a merchant string into an actual category decision,
- * per §4/§5 of notes/category-engine-design.md. `classify()` only ranks
- * possibilities; this is the one place that picks a winner (or refuses to).
+ * decide.ts — turns a merchant string into an actual category decision.
+ * classify()` only ranks possibilities; this is where the winner is picked.
  */
-
 import { normalizePolicyEntry } from "./buildModel.ts";
 import type { CategoryModel, CategoryPolicy } from "./buildModel.ts";
 import { classify } from "./classify.ts";
 
-// Provisional — not yet tuned against real Undecided output. See the "left
-// open" list in notes/category-engine-design.md.
 const CATEGORY_CONFIDENCE_THRESHOLD = 0.5;
 
 /**
