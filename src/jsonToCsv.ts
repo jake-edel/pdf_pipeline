@@ -8,10 +8,6 @@ import { toFireflyTable } from "./modules/firefly.ts";
 import { isTransactionList } from "./modules/transaction.ts";
 import type { Transaction } from "./modules/transaction.ts";
 
-// Provisional — not yet tuned against real Undecided output. See the "left
-// open" list in notes/category-engine-design.md.
-const CATEGORY_CONFIDENCE_THRESHOLD = 0.5;
-
 if (process.argv.length < 3) {
   console.log("No filename argument provided!");
   process.exit(1);
@@ -57,8 +53,7 @@ const categorized = json.map((transaction) => {
     category_name: decide(
       transaction.opposing_name,
       model,
-      policy,
-      CATEGORY_CONFIDENCE_THRESHOLD,
+      policy
     ),
   };
 });
