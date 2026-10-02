@@ -1,23 +1,43 @@
 {
   "Otros Ingresos": "Otros",
+  "Devolución": "Otros",
+  "Ccp Playa Del Carmen": "Otros",
+  "Cedis Playa": "Otros",
+  "Mercadopago *Fix - 1/3": "Otros",
+  "Mercadopago *Fix - 2/3": "Otros",
+  "Mercadopago *Fix - 3/3": "Otros",
+  "Merpago*Provejal": "Otros",
+  "Mercadopago *Carmenme": "Otros",
+  "Mercadopago *Emiliano": "Otros",
+  "Mercadopago *Masterro": "Otros",
+  "Mercadopago *Girls": "Otros",
 
-  "Qualitas": {
-    "category": "Seguro",
-    "weight": 30
-  },
+  "Qualitas Sel - 1/6": "Seguro",
+  "Qualitas Sel - 2/6": "Seguro",
+  "Qualitas Sel - 3/6": "Seguro",
+  "Qualitas Sel - 4/6": "Seguro",
+  "Qualitas Sel - 5/6": "Seguro",
+  "Qualitas Sel - 6/6": "Seguro",
 
 	"Farm Guad": "Salud",
+	"Far Guad": "Salud",
 	"Hosp Henri Dunant": "Salud",
 	"Ident": "Salud",
 	"329 Devlyn Plaza Carme": "Salud",
 	"Farmacia Uni": "Salud",
+  "Farmacias Similares": "Salud",
+  "Femme Plus": "Salud",
 
   "Steamgames.Com": "Tiempo libre",
   "Wl *Steam Purchase": "Tiempo libre",
   "All4padelpdc": "Tiempo libre",
   "Cinepolis Web": "Tiempo libre",
+  "Clip Mx*Pque Parque do": "Tiempo libre",
 
+  "Floreria Floreli Bout": "Hogar",
+  "Floreria Iris I": "Hogar",
 	"Vivero Los Pinos": "Hogar",
+  "Vet Super Mascota": "Hogar",
 
   "Telcel": "Cellular",
   "T1 Telcel Pyre": "Cellular",
@@ -27,10 +47,8 @@
 	"Merpago*Mercadolibre": "Amazon",
   "Str*Amazon": "Amazon",
   "Stripe *Amazon": "Amazon",
-  "Amazon": {
-		"category": "Amazon",
-		"weight": 30
-	},
+  "Amazon": "Amazon",
+
   "Home Depot": "Ferreteria",
   "Home Depot Playa Del C": "Ferreteria",
   "V J Tornillos Y Herram": "Ferreteria",
@@ -39,33 +57,32 @@
   "Madereria Martinez": "Ferreteria",
   "Ferret Jaurez Sayer": "Ferreteria",
   "Ferre Mat Mv": "Ferreteria",
+  "Ferre Tecnocaribe": "Ferreteria",
+  "Ferreteria Fary": "Ferreteria",
   "Mercadopago *Tlapaler": "Ferreteria",
-  "Tlapaler": {
-    "category": "Ferreteria",
-    "weight": 10
-  },
-  "Ferreteria": {
-    "category": "Ferreteria",
-    "weight": 10
-  },
-  "Ferr": {
-    "category": "Ferreteria",
-    "weight": 10
-  },
-  "Costco": {
-    "category": "Costco",
-    "weight": 50
-  },
+  "Mercadopago *Ferr": "Ferreteria",
+  "Mercadopago *Uaemferr": "Ferreteria",
+  "Pint Py": "Ferreteria",
 
-	"Bizzaro Averanda": "Ropa",
+  "Costco Cuernavaca": "Costco",
+  "Costco Cancun": "Costco",
+  "Sams Playa Del Carmen": "Costco",
+
+	"Bizarro Averanda": "Ropa",
 	"Zara Cancun Americas": "Ropa",
+	"Hm Mx0011 Playacarmen": "Ropa",
+  "Clip Mx*Bout Alex Jean": "Ropa",
 
 	"Supercenter Petempich": "Supermercado",
 	"Soriana957 Casdelaselv": "Supermercado",
 	"Wm Express Zapata": "Supermercado",
 	"7 Eleven": "Supermercado",
 	"7eleven T897 Sayulita": "Supermercado",
+	"7eleven T2532 Quinta": "Supermercado",
 	"Aki Bacalar": "Supermercado",
+  "Heb Rio Verde": "Supermercado",
+  "Gc98 Jazmin": "Supermercado",
+  "Mercadopago *Cremeria": "Supermercado",
 
   "Viva Aerobus Cib": "Viaje",
   "Vivaaerobus Web": "Viaje",
@@ -80,15 +97,22 @@
   "Gasol Es Capote": "Transporte",
   "Gasol Handall Baca": "Transporte",
   "Gas Suc Arrecifes": "Transporte",
+  "Servicio Rio Hondo": "Transporte",
+  "Refacc Etr": "Transporte",
 
   "Steren": "Electronicos",
   "Steren Eec": "Electronicos",
   "Anthropic* Claude Sub": "Electronicos",
   "Claude.Ai Subscription": "Electronicos",
   "Openai *Chatgpt Subscr": "Electronicos",
+  "Openai": "Electronicos",
 
   "Johnny D Burger": "Restaurante",
+  "Heladeria Lelo": "Restaurante",
+  "Heladeria Ielo": "Restaurante",
+  "Mercadopago *Dumpling": "Restaurante",
   "la Gringa": "Restaurante",
+  "Starbucks Cofee L": "Restaurante",
   "la Gringa de Galvan": "Restaurante",
   "Dominos Unv Cuernavaca": "Restaurante",
   "El Gran Taco": "Restaurante",
@@ -114,6 +138,8 @@
 	"la Barberia": "Servicio",
 	"Stripe* Peritos Traduc": "Servicio",
 	"Dhl Plaza Del Carmen": "Servicio",
-	"Imoveqroo": "Servicio"
-
+	"Imoveqroo": "Servicio",
+	"Stripe *Peritos Traduc": "Servicio",
+	"Peritos Traductores Mx": "Servicio",
+  "Predur Consultoria": "Servicio"
 }
