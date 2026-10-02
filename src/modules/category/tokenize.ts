@@ -31,6 +31,21 @@
  * here, only "turn this string into words," full stop.
  */
 
+const NOISE_WORDS = new Set([
+  // Payment processors
+  "MERCADOPAGO",
+  "MERPAGO",
+  "CLIP",
+  "MX",
+  "STRIPE",
+  // Places
+  "PLAYA",
+  "DEL",
+  "CARMEN",
+  "CANCUN",
+  "CUERNAVACA",
+]);
+
 /**
  * `tokenize` normalizes and splits a merchant string into word tokens.
  *
@@ -102,11 +117,16 @@
  *   A hand-maintained stopword list is one more thing to keep in sync
  *   for a problem the math already handles.
  *
- * - It does not strip known payment-processor prefixes ("STR",
- *   "STRIPE", "CLIP MX", "WL", "OPLINEA"). Same reasoning: these are
- *   noisy but not *misleading* — they don't point toward a wrong
- *   category, they just add a low-information word that shows up
- *   everywhere and therefore doesn't swing any category's score.
+ * - It does not strip every payment-processor prefix — only the ones in
+ *   NOISE_WORDS (below), which turned out to be *misleading* rather than
+ *   merely noisy. The "shows up everywhere, so it doesn't swing the
+ *   score" argument assumes enough data for the word to spread evenly
+ *   across categories; at a few hundred rows it doesn't. MERCADOPAGO
+ *   ended up mostly Ferreteria (one hardware store paid through it many
+ *   times) and CANCUN mostly Costco (the only Costco is in Cancún), so
+ *   every new merchant carrying either word got pulled that way. Words
+ *   that look like noise but actually predict well — STR (Amazon),
+ *   OPLINEA (restaurant delivery) — are deliberately kept.
  *
  * - It does not produce multi-word tokens ("bigrams" like
  *   "COSTCO_CANCUN"). CATEGORY_ENGINE.md already considered and
@@ -127,6 +147,7 @@
  * tokenize("Amazon A Meses - 2/3")     // ["AMAZON", "A", "MESES"]
  * tokenize("Oxxo Oxxo Del Carmen")     // ["OXXO", "OXXO", "DEL", "CARMEN"]
  * tokenize("123")                      // [] — an all-digit string has no words
+ * tokenize("Mercadopago *Ferr")        // ["FERR"]
  */
 export function tokenize(merchant: string): string[] {
   const withoutAccents = merchant
@@ -143,5 +164,6 @@ export function tokenize(merchant: string): string[] {
   const runs = upper.match(/[A-Z]+|[0-9]+/g) ?? [];
 
   // Digit-only runs are branch/store codes, not words — drop them.
-  return runs.filter((run) => /[A-Z]/.test(run));
+  // Then drop the noise words (see NOISE_WORDS).
+  return runs.filter((run) => /[A-Z]/.test(run) && !NOISE_WORDS.has(run));
 }
