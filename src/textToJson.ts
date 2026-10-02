@@ -31,7 +31,9 @@ async function readPreviousSaldoFinal() {
   if (!match) {
     return null;
   }
-  const previous = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 2, 1));
+  const previous = new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 2, 1),
+  );
   const previousName = previous.toISOString().slice(0, 7);
   try {
     const previousText = await fs.readFile(
@@ -57,15 +59,16 @@ for (const line of parsed.failed) {
 for (const error of errors) {
   console.log("Validation failed: " + error);
 }
-if (errors.length > 0) {
-  process.exitCode = 1;
-}
+if (errors.length > 0) process.exitCode = 1;
 
 const transactionsDir = path.join(process.cwd(), "/transactions");
 const outfile = path.basename(filename, ".txt");
 const outfilePath = path.join(transactionsDir, outfile) + ".json";
 try {
-  await fs.writeFile(outfilePath, JSON.stringify(parsed.rows.map(toTransaction)));
+  await fs.writeFile(
+    outfilePath,
+    JSON.stringify(parsed.rows.map(toTransaction)),
+  );
 } catch (e) {
   throw new Error(`Write to ${outfilePath} failed.`, { cause: e });
 }
@@ -73,7 +76,10 @@ try {
 // Don't leave a stale failed-rows file from an earlier run behind
 const failedRowsFilePath = path.join(transactionsDir, outfile + "_failed.json");
 if (parsed.failed.length !== 0) {
-  await fs.writeFile(failedRowsFilePath, JSON.stringify(parsed.failed.join("\n")));
+  await fs.writeFile(
+    failedRowsFilePath,
+    JSON.stringify(parsed.failed.join("\n")),
+  );
 } else {
   await fs.rm(failedRowsFilePath, { force: true });
 }

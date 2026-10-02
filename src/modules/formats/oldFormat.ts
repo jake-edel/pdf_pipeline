@@ -1,4 +1,8 @@
-import { monthPattern, parseFullDate, toIsoDateInPeriod } from "../dateUtils.ts";
+import {
+  monthPattern,
+  parseFullDate,
+  toIsoDateInPeriod,
+} from "../dateUtils.ts";
 import { parseAmount } from "../parse.ts";
 import type { ParsedStatement, Row } from "../parse.ts";
 
@@ -17,9 +21,6 @@ const rowStartRegexp = new RegExp(`^\\d{2} (?:${monthPattern})\\s`);
 // Delimiters for the beginning and end of the transactions tables
 const tableStart = "TRANSACCIONES";
 const saldoRegexp = /^Saldo final del periodo\s+(\$[\d,]+\.\d{2})$/;
-
-// Limit increases aren't spending and don't move the balance
-const ignoredMerchant = "Aumentaste tu límite";
 
 export function readSaldoFinal(text: string) {
   for (const line of text.split("\n")) {
@@ -61,10 +62,12 @@ export default function parse(text: string): ParsedStatement {
         failed.push(line);
         continue;
       }
-      const [category, merchant] = parts.length === 2 ? parts : [null, parts[0]];
-      if (merchant.startsWith(ignoredMerchant)) {
-        continue;
-      }
+      const [category, merchant] =
+        parts.length === 2 ? parts : [null, parts[0]];
+
+      // Limit increases aren't spending and don't move the balance
+      if (merchant.startsWith("Aumentaste tu límite")) continue;
+
       rows.push({
         dateTransaction: toIsoDateInPeriod(day, month, periodStart, periodEnd),
         dateCharge: null,
