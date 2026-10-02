@@ -239,13 +239,26 @@ export function buildModel(
   const policyMerchants = new Set(Object.keys(policy));
 
   for (const transaction of history) {
-    if (transaction.category_name === null) continue;
     if (isCardPayment(transaction)) continue;
-    if (policyMerchants.has(transaction.opposing_name)) continue;
+
+    // If our policy entry has an exact match for our merchant
+    // and that match is a plain string, it's a category override
+    const hasCategoryOverride = 
+      policyMerchants.has(transaction.opposing_name) &&
+      typeof policy[transaction.opposing_name] === "string";
+    
+    // If it's a category override, replace the category with
+    // the one found in the policy file
+    const category = hasCategoryOverride
+      ? policy[transaction.opposing_name]
+      : transaction.category_name
+
+    // No override and no bank-printed category: nothing to learn from
+    if (category === null) continue;
 
     ingest(
       transaction.opposing_name,
-      transaction.category_name,
+      category,
       wordCategoryCounts,
       categoryWordTotals,
       categoryTransactionCounts,
