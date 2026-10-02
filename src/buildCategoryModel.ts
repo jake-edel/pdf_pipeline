@@ -12,7 +12,9 @@ import type { Transaction } from "./modules/transaction.ts";
 // order so the model's Map insertion order doesn't depend on readdir().
 const transactionsDir = path.join(process.cwd(), "transactions");
 const history: Transaction[] = [];
-for (const file of (await fs.readdir(transactionsDir)).sort()) {
+
+const files = (await fs.readdir(transactionsDir)).sort()
+for (const file of files) {
   const data = JSON.parse(
     await fs.readFile(path.join(transactionsDir, file), "utf-8"),
   );
@@ -28,6 +30,7 @@ const model = buildModel(history, policy);
 const modelDir = path.join(process.cwd(), "model");
 await fs.mkdir(modelDir, { recursive: true });
 const outfilePath = path.join(modelDir, "category_model.json");
+
 try {
   await fs.writeFile(outfilePath, serializeModel(model));
 } catch (e) {
