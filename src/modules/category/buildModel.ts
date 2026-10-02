@@ -19,96 +19,14 @@
  * precomputed probabilities means this module can just keep adding —
  * new history, new policy entries — without ever having to "undo" a
  * division; a probability is a snapshot, a count is durable.
- *
- * TWO SOURCES FEED THE SAME COUNTS.
- *
- * 1. HISTORY — old-format `Transaction[]` rows, which carry a real
- *    `category_name` printed by the bank. This is "free" training data;
- *    nobody had to sit down and label it. Each row counts as one
- *    transaction's worth of evidence (weight 1).
- *
- * 2. CATEGORY POLICY — a small hand-authored file (`category_policy.json`
- *    in the design doc) mapping a merchant string OR a bare word to a
- *    category, with an optional weight. It serves two purposes under one
- *    schema:
- *      - A plain string value is a ROW-LEVEL CORRECTION — "this specific
- *        merchant string was mislabeled (or is `Undecided`), it should
- *        be this category instead." Counts as one synthetic transaction,
- *        same weight as a real history row.
- *      - An object value with an explicit `weight` is a CATEGORY-LEVEL
- *        DECLARATION — "this word should define its own category, or
- *        overwhelmingly override whatever history currently associates
- *        it with, going forward." Counts as `weight` synthetic
- *        transactions, chosen large enough to outweigh (not necessarily
- *        erase — see below) whatever competing evidence already exists.
- *        This is also how a category that doesn't exist anywhere in
- *        history (e.g. `Ferreteria`, if hardware stores currently fall
- *        under `Hogar` or `Electrónicos`) gets created: naming it in a
- *        policy entry is the only "registration" a category needs, since
- *        every count this module produces — word counts AND the
- *        `categoryTransactionCounts` prior — comes from `ingest()` calls,
- *        and `ingest()` doesn't care whether the category has been seen
- *        before.
- *
- * Both sources are tokenized by the exact same `tokenize()` used at
- * prediction time (see that file's header for why that symmetry is the
- * single most important invariant in the whole engine) and folded into
- * the same counts via the same `ingest()` helper. `classify()` never
- * knows or cares whether a given word's evidence came from the bank or
- * from a human — by the time it reads the model, it's all just numbers.
- *
- * A WORD-LEVEL CAVEAT WORTH RECORDING HERE: `ingest()` tokenizes
- * whatever key you give it and applies the SAME weight to every
- * resulting word independently — there is no way to weight a *phrase* as
- * a unit, because Naive Bayes doesn't represent word pairs at all (§3.2
- * of the design doc — "naive" means exactly this). Seeding the policy
- * key `"Home Depot"` at weight 30 doesn't create one signal, it creates
- * two: `HOME` and `DEPOT` each independently become strong `Ferreteria`
- * evidence, and either one alone would now pull some unrelated future
- * merchant containing just that word toward `Ferreteria` too. Usually
- * harmless (loanwords like `HOME`/`DEPOT` don't otherwise appear in this
- * Spanish-language corpus), but the mitigation when a constituent word
- * IS generic is to key the entry on the most distinctive single word
- * (`"Depot"`) rather than the full merchant string — no code change
- * needed, just a more deliberate choice of key.
- *
  */
 
 import { isCardPayment } from "../firefly.ts";
 import type { Transaction } from "../transaction.ts";
 import { tokenize } from "./tokenize.ts";
 
-/**
- * One entry in the category policy file. Either shape is keyed the same
- * way — a merchant string for a row fix, or a bare word/short phrase for
- * a category declaration — and matching against history (for the
- * "corrections win" exclusion below) is a plain string comparison
- * against `opposing_name` rather than going through `tokenize()`, so a
- * row-level correction should be copy-pasted verbatim from the
- * transaction JSON it's meant to fix. A category-level declaration's key
- * is chosen deliberately rather than copied — see the module header's
- * word-level caveat for why that choice matters.
- *
- * - `string` — a plain category name. Implicit weight of 1: this entry
- *   is worth exactly one synthetic transaction, the same as a single
- *   real history row. This is the row-level correction case.
- * - `{ category, weight }` — an explicit weight. This entry is worth
- *   `weight` synthetic transactions, chosen large enough to dominate
- *   whatever it's competing against. This is the category-level
- *   declaration case, including bringing a brand-new category into
- *   existence outright.
- */
-export type CategoryPolicyEntry = string | { category: string; weight: number };
-
-/** `category_policy.json`, loaded: `{ "key": CategoryPolicyEntry }`. */
-export type CategoryPolicy = Record<string, CategoryPolicyEntry>;
-
-export function normalizePolicyEntry(entry: CategoryPolicyEntry): {
-  category: string;
-  weight: number;
-} {
-  return typeof entry === "string" ? { category: entry, weight: 1 } : entry;
-}
+/** `category_policy.json`, loaded: `{ "merchant": "category" }`. */
+export type CategoryPolicy = Record<string, string>;
 
 /**
  * The trained state `classify()` reads. Everything in here is a raw
@@ -155,13 +73,6 @@ export type CategoryModel = {
   vocabularySize: number;
 };
 
-/**
- * Folds one (key, category) pair into the counts being built, worth
- * `weight` synthetic transactions (default 1, i.e. one real transaction
- * or one plain-string policy correction). Called once per history row
- * and once per policy entry — every source ends up going through the
- * same accounting, which is exactly the point (see module header).
- */
 function ingest(
   merchant: string,
   category: string,
@@ -200,7 +111,9 @@ function ingest(
  * contributes a single count:
  *   - `category_name === null` rows (every new-format transaction,
  *     since that's the whole problem this engine exists to solve) carry
- *     no training signal and are skipped.
+ *     no training signal and are skipped — unless the policy has an
+ *     override for their exact `opposing_name`, in which
+ *     case they count under that category like any other row.
  *   - Card payment rows are skipped via the same `isCardPayment` check
  *     `jsonToCsv.ts` uses to leave them out of the Firefly CSV. This
  *     matters concretely, not just in theory: a real row in the data is
@@ -208,25 +121,7 @@ function ingest(
  *     `"¡Muchas gracias!"` — the bank's payment-receipt line, not a
  *     spending category. Without this filter, "GRACIAS" becomes a
  *     learned word under a fake category that will never appear again.
- *   - Any row whose `opposing_name` is a key in `policy` is skipped,
- *     even though it otherwise has a usable `category_name`. This is the
- *     "policy wins" rule: if a human has explicitly relabeled a
- *     merchant, every historical occurrence of that exact string defers
- *     to the policy entry rather than contributing its (possibly wrong,
- *     or no longer wanted) original label. A merchant that appears
- *     correctly 20 times in history and is corrected once ends up
- *     contributing ONE data point under the corrected category, not 20
- *     old ones plus 1 new one pulling in different directions. Note this
- *     only ever fires for full-merchant-string keys — a category
- *     declaration keyed on a bare word (`"Depot"`) never matches a real
- *     `opposing_name` exactly, so it leaves history's counts in place and
- *     wins by outweighing them instead, which is the intended behavior
- *     for that case (see module header).
- * @param policy - The category policy: a mix of row-level corrections
- * (plain string values, weight 1) and category-level declarations
- * (object values with an explicit `weight`). See `CategoryPolicy` above.
- * Every entry here always contributes to the counts — there's no
- * filtering to do, since a human already decided each one on purpose.
+ * @param policy
  */
 export function buildModel(
   history: Transaction[],
@@ -241,12 +136,10 @@ export function buildModel(
   for (const transaction of history) {
     if (isCardPayment(transaction)) continue;
 
-    // If our policy entry has an exact match for our merchant
-    // and that match is a plain string, it's a category override
-    const hasCategoryOverride = 
-      policyMerchants.has(transaction.opposing_name) &&
-      typeof policy[transaction.opposing_name] === "string";
-    
+    // If our policy entry has an exact match for our merchant,
+    // it's a category override
+    const hasCategoryOverride = policyMerchants.has(transaction.opposing_name);
+
     // If it's a category override, replace the category with
     // the one found in the policy file
     const category = hasCategoryOverride
@@ -262,19 +155,6 @@ export function buildModel(
       wordCategoryCounts,
       categoryWordTotals,
       categoryTransactionCounts,
-    );
-  }
-
-  for (const [key, entry] of Object.entries(policy)) {
-    const { category, weight } = normalizePolicyEntry(entry);
-
-    ingest(
-      key,
-      category,
-      wordCategoryCounts,
-      categoryWordTotals,
-      categoryTransactionCounts,
-      weight,
     );
   }
 

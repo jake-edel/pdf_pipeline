@@ -2,7 +2,6 @@
  * decide.ts — turns a merchant string into an actual category decision.
  * classify()` only ranks possibilities; this is where the winner is picked.
  */
-import { normalizePolicyEntry } from "./buildModel.ts";
 import type { CategoryModel, CategoryPolicy } from "./buildModel.ts";
 import { classify } from "./classify.ts";
 
@@ -22,16 +21,11 @@ export function decide(
   policy: CategoryPolicy,
   threshold: number = CATEGORY_CONFIDENCE_THRESHOLD,
 ): string | null {
-  const policyEntry = policy[merchant];
 
   // Our vendor => string mappings in the policy file
   // are decision overrides. If we find an exact match,
   // that will dictate the assigned category.
-  if (typeof policyEntry === "string") return policyEntry;
-
-  if (policyEntry !== undefined) {
-    return normalizePolicyEntry(policyEntry).category;
-  }
+  if (policy[merchant]) return policy[merchant];
 
   const classification = classify(merchant, model);
   const [top] = classification;
