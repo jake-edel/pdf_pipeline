@@ -46,7 +46,8 @@ const columns: {
 
 /** Header row plus one row per transaction, card payments left out */
 export function toFireflyTable(statement: string, transactions: Transaction[]) {
-  const kept = transactions.filter((t) => !isCardPayment(t));
+  // const kept = transactions.filter((t) => !isCardPayment(t));
+  const kept = transactions;
   const ids = externalIds(statement, kept);
 
   return {
