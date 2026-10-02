@@ -79,8 +79,9 @@ function ingest(
   wordCategoryCounts: Map<string, Map<string, number>>,
   categoryWordTotals: Map<string, number>,
   categoryTransactionCounts: Map<string, number>,
-  weight = 1,
 ) {
+  const weight = 1;
+
   categoryTransactionCounts.set(
     category,
     (categoryTransactionCounts.get(category) ?? 0) + weight,
