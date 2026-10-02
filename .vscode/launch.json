@@ -24,6 +24,16 @@
     {
       "type": "pwa-node",
       "request": "launch",
+      "name": "Build model",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "model"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [ "<node_internals>/**", "**/node_modules/**" ]
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
       "name": "Run Scratchpad",
       "program": "${workspaceFolder}/src/scratchpad.ts",
       "cwd": "${workspaceFolder}",
