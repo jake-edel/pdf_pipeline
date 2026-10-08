@@ -58,13 +58,18 @@ const categorized = json.map((transaction) => {
   };
 });
 
-const statement = path.basename(filename, ".json");
+// Provider is whatever directory the JSON file lives in (transactions/nu/*.json
+// -> nu), mirrored into csv/ and folded into the external-id seed below so
+// providers never share an output path or a same-month, same-merchant id.
+const name = path.basename(filename, ".json");
+const provider = path.basename(path.dirname(filename));
+const statement = `${provider}-${name}`;
 const { table, skipped } = toFireflyTable(statement, categorized);
 const undecided = categorized.filter((t) => t.category_name === null).length;
 
-const csvDir = path.join(process.cwd(), "/csv");
+const csvDir = path.join(process.cwd(), "csv", provider);
 await fs.mkdir(csvDir, { recursive: true });
-const outfilePath = path.join(csvDir, statement) + ".csv";
+const outfilePath = path.join(csvDir, name) + ".csv";
 try {
   await fs.writeFile(outfilePath, toCsv(table));
 } catch (e) {
@@ -72,6 +77,6 @@ try {
 }
 
 console.log(
-  `${statement}: ${table.length - 1} rows, skipped ${skipped} payment row(s), ` +
+  `${provider}/${name}: ${table.length - 1} rows, skipped ${skipped} payment row(s), ` +
     `${undecided} Undecided`,
 );

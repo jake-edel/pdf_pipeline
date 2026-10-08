@@ -13,7 +13,11 @@ import type { Transaction } from "./modules/transaction.ts";
 const transactionsDir = path.join(process.cwd(), "transactions");
 const history: Transaction[] = [];
 
-const files = (await fs.readdir(transactionsDir)).sort()
+// transactions/ is now one subdirectory per provider (transactions/nu/*.json),
+// so this has to walk one level deeper than a flat readdir would.
+const files = (await fs.readdir(transactionsDir, { recursive: true }))
+  .filter((file) => file.endsWith(".json"))
+  .sort();
 for (const file of files) {
   const data = JSON.parse(
     await fs.readFile(path.join(transactionsDir, file), "utf-8"),

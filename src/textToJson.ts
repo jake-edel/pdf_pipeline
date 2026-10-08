@@ -60,7 +60,11 @@ for (const error of errors) {
 }
 if (errors.length > 0) process.exitCode = 1;
 
-const transactionsDir = path.join(process.cwd(), "/transactions");
+// Provider is whatever directory the text file lives in (text/nu/*.txt -> nu),
+// mirrored into transactions/ so providers never share an output path.
+const provider = path.basename(path.dirname(filename));
+const transactionsDir = path.join(process.cwd(), "transactions", provider);
+await fs.mkdir(transactionsDir, { recursive: true });
 const outfile = path.basename(filename, ".txt");
 const outfilePath = path.join(transactionsDir, outfile) + ".json";
 try {
@@ -83,4 +87,4 @@ if (parsed.failed.length !== 0) {
   await fs.rm(failedRowsFilePath, { force: true });
 }
 
-console.log(`${outfile}: ${format.id} format, ${parsed.rows.length} transactions`);
+console.log(`${provider}/${outfile}: ${format.id} format, ${parsed.rows.length} transactions`);

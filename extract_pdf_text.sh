@@ -8,7 +8,13 @@ convert_pdf() {
 	local infile="$1"
 	local base_infile="${infile##*/}"
 	local outfile="${base_infile%.pdf}.txt"
+	# Provider is whatever directory the PDF lives in (pdfs/nu/*.pdf -> nu),
+	# mirrored into text/ so providers never share an output path.
+	local provider="$(basename "$(dirname "$infile")")"
+	local outdir="$TEXT_DIR/$provider"
 	local pages first_page last_page sample mode
+
+	mkdir -p "$outdir"
 
 	pages=$(pdfinfo "$infile" | awk '/^Pages:/ { print $2 }') || {
 		echo "Failed to read PDF info: $infile" >&2
@@ -45,12 +51,12 @@ convert_pdf() {
 	pdftotext $mode -f $first_page -l $last_page -- "$infile" - \
 		| tr -d '\f' \
 		| sed '/^[[:space:]]*$/d' \
-		> "$TEXT_DIR/$outfile" || {
+		> "$outdir/$outfile" || {
 		echo "Failed to convert: $infile" >&2
 		return 1
 	}
 
-	echo "Generated $outfile from PDF $infile"
+	echo "Generated $provider/$outfile from PDF $infile"
 	echo ""
 }
 
