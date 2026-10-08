@@ -1,6 +1,7 @@
 import { monthPattern, parseFullDate } from "../dateUtils.ts";
 import { parseAmount } from "../parse.ts";
-import type { ParsedStatement, Row } from "../parse.ts";
+import type { Row } from "../parse.ts";
+import type { Format, ParsedStatement } from "./types.ts";
 
 // 28 ENE 2026 15 MAR 2026 Qualitas Sel - 3/6 | RFC: S.I. +$1,195.69
 // Requiring both dates keeps the one-date installment table out.
@@ -10,7 +11,9 @@ const rowRegexp = new RegExp(
 );
 const rowStartRegexp = new RegExp(`^${date} ${date} `);
 
-export default function parse(text: string): ParsedStatement {
+type NewParsedStatement = ParsedStatement & { charges: number; credits: number };
+
+function parse(text: string): NewParsedStatement {
   const lines = text.split("\n").map((line) => line.trim());
 
   const rows: Row[] = [];
@@ -41,10 +44,47 @@ export default function parse(text: string): ParsedStatement {
   return {
     rows,
     failed,
-    expected: {
-      kind: "new",
-      charges: parseAmount(lines[totalsIndex - 2]),
-      credits: parseAmount(lines[totalsIndex - 1]),
-    },
+    charges: parseAmount(lines[totalsIndex - 2]),
+    credits: parseAmount(lines[totalsIndex - 1]),
   };
 }
+
+const dollars = (cents: number) => (cents / 100).toFixed(2);
+const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
+
+/** New format prints its own totals, so reconciliation needs no other statement. */
+function reconcile(parsed: NewParsedStatement) {
+  const errors: string[] = [];
+  const cents = parsed.rows.map((row) => row.cents);
+  const charges = sum(cents.filter((c) => c > 0));
+  const credits = sum(cents.filter((c) => c < 0));
+
+  if (charges !== parsed.charges) {
+    errors.push(
+      `Total de cargos: rows sum to ${dollars(charges)}, statement says ${dollars(parsed.charges)}`,
+    );
+  }
+  if (credits !== parsed.credits) {
+    errors.push(
+      `Total de abonos: rows sum to ${dollars(credits)}, statement says ${dollars(parsed.credits)}`,
+    );
+  }
+
+  return errors;
+}
+
+/**
+ * Same test as extract_pdf_text.sh: only the new statements
+ * have `Página N de M` page headers.
+ */
+const detect = (text: string) => /^Página \d+ de \d+/m.test(text);
+
+const newFormat: Format<NewParsedStatement> = {
+  id: "new",
+  detect,
+  parse,
+  needsPreviousStatement: false,
+  reconcile,
+};
+
+export default newFormat;

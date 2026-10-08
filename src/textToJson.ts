@@ -1,8 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import detectFormat from "./modules/formats/detectFormat.ts";
-import parseNewFormat from "./modules/formats/newFormat.ts";
-import parseOldFormat, { readSaldoFinal } from "./modules/formats/oldFormat.ts";
+import detectFormat from "./modules/formats/index.ts";
 import validate from "./modules/validate.ts";
 import { toTransaction } from "./modules/transaction.ts";
 
@@ -22,10 +20,10 @@ try {
 }
 
 const format = detectFormat(text);
-const parsed = format === "new" ? parseNewFormat(text) : parseOldFormat(text);
+const parsed = format.parse(text);
 
-/** Final balance of the previous month's statement, if its text file exists */
-async function readPreviousSaldoFinal() {
+/** Previous month's statement text, if that file exists */
+async function readPreviousText(filename: string) {
   const name = path.basename(filename, ".txt");
   const match = name.match(/^(\d{4})-(\d{2})$/);
   if (!match) {
@@ -36,23 +34,24 @@ async function readPreviousSaldoFinal() {
   );
   const previousName = previous.toISOString().slice(0, 7);
   try {
-    const previousText = await fs.readFile(
+    return await fs.readFile(
       path.join(path.dirname(filename), previousName + ".txt"),
       "utf-8",
     );
-    return readSaldoFinal(previousText);
   } catch {
     return null;
   }
 }
 
-const previousSaldoFinal =
-  parsed.expected.kind === "old" ? await readPreviousSaldoFinal() : null;
-if (parsed.expected.kind === "old" && previousSaldoFinal === null) {
-  console.log("Previous statement not found, skipping the balance check");
+let previousText: string | null = null;
+if (format.needsPreviousStatement) {
+  previousText = await readPreviousText(filename);
+  if (previousText === null) {
+    console.log("Previous statement not found, skipping the balance check");
+  }
 }
 
-const errors = validate(parsed, previousSaldoFinal);
+const errors = [...validate(parsed), ...format.reconcile(parsed, previousText)];
 for (const line of parsed.failed) {
   console.log("Failed to parse: " + line);
 }
@@ -84,4 +83,4 @@ if (parsed.failed.length !== 0) {
   await fs.rm(failedRowsFilePath, { force: true });
 }
 
-console.log(`${outfile}: ${format} format, ${parsed.rows.length} transactions`);
+console.log(`${outfile}: ${format.id} format, ${parsed.rows.length} transactions`);
