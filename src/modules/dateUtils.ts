@@ -45,6 +45,16 @@ export function parseFullDate(date: string) {
   return toIsoDate(Number.parseInt(year), Number.parseInt(day), month);
 }
 
+/** `DD/MM/YYYY` to ISO date, for formats that print numeric dates instead of month abbreviations */
+export function toIsoDateFromNumeric(day: number, month: number, year: number) {
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+    throw new Error(`Invalid date: ${day}/${month}/${year}`);
+  }
+
+  return date.toISOString().split("T")[0];
+}
+
 /**
  * `15 JUL` to ISO date, for statements whose rows carry no year.
  * The year is whichever one places the date inside the statement period,
