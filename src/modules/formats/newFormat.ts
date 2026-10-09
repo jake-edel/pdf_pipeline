@@ -74,7 +74,7 @@ function reconcile(parsed: NewParsedStatement) {
 }
 
 /**
- * Same test as extract_pdf_text.sh: only the new statements
+ * Same test as src/extractPdfText.ts: only the new statements
  * have `Página N de M` page headers.
  */
 const detect = (text: string) => /^Página \d+ de \d+/m.test(text);

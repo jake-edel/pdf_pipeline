@@ -7,26 +7,30 @@ This file provides guidance to Claude Code when working with code in this reposi
 A manual, three-stage pipeline that turns monthly credit card statement PDFs (Nu México, Spanish-language, MXN) into a JSON array of transactions, and from that into CSVs for Firefly III's Data Importer. The stages are run by hand on purpose during development.
 
 ```
-pdfs/YYYY-MM.pdf --extract_pdf_text.sh--> text/YYYY-MM.txt --src/textToJson.ts--> transactions/YYYY-MM.json --src/jsonToCsv.ts--> csv/YYYY-MM.csv
+pdfs/<provider>/YYYY-MM.pdf --src/extractPdfText.ts--> text/<provider>/YYYY-MM.txt --src/textToJson.ts--> transactions/<provider>/YYYY-MM.json --src/jsonToCsv.ts--> csv/<provider>/YYYY-MM.csv
 ```
 
-`YYYY-MM` is the statement's **closing** month (e.g. `2026-04` covers 15 Mar – 14 Apr 2026). Downstream files inherit the PDF's base name.
+`YYYY-MM` is the statement's **closing** month (e.g. `2026-04` covers 15 Mar – 14 Apr 2026). Downstream files inherit the PDF's base name. `<provider>` (e.g. `nu`, `bbva`) is whatever directory the PDF lives under in `pdfs/` — every stage derives it from its input file's parent directory and mirrors it into its output path, so no two providers' same-month files can collide. All three stages resolve their output directory relative to the cwd (run from the repo root).
 
 ## Commands
 
 Requires `poppler-utils` (`pdftotext`, `pdfinfo`) and Node with native TypeScript support (runs `.ts` directly, no build step, imports use the `.ts` extension). There is no test suite.
 
 ```bash
-# Stage 1: PDF -> text (writes to text/, always relative to the script's location)
-./extract_pdf_text.sh pdfs/2026-04.pdf               # one file
-npm run extract                                      # regenerate text/ for every PDF in pdfs/
+# Stage 1: PDF -> text
+node src/extractPdfText.ts pdfs/nu/2026-04.pdf       # one file, same as: npm run extract -- pdfs/nu/2026-04.pdf
+npm run extract-all                                  # regenerate text/ for every PDF under pdfs/*/
 
 # Stage 2: text -> JSON
-node src/textToJson.ts text/2026-04.txt              # same as: npm run parse -- text/2026-04.txt
+node src/textToJson.ts text/nu/2026-04.txt           # same as: npm run parse -- text/nu/2026-04.txt
+npm run parse-all                                     # regenerate transactions/ for every text file under text/*/
 
-# Stage 3: JSON -> Firefly III CSV (writes to csv/, relative to the cwd)
-node src/jsonToCsv.ts transactions/2026-04.json      # same as: npm run csv -- transactions/2026-04.json
+# Stage 3: JSON -> Firefly III CSV
+node src/jsonToCsv.ts transactions/nu/2026-04.json   # same as: npm run csv -- transactions/nu/2026-04.json
+npm run csv-all                                       # rebuild the category model, then regenerate csv/ for every provider
 ```
+
+Only `nu` has a working extraction profile so far (page range, `pdftotext` mode); `extract-all` also globs `pdfs/bbva/*.pdf` but will mis-extract or fail on those until BBVA's own page range/password handling is built.
 
 `pdfs/`, `text/`, `transactions/`, `csv/` are gitignored and hold real financial data. `wip/` (untracked) is scratch output for in-progress parser work.
 
@@ -43,7 +47,7 @@ The bank changed its PDF layout starting with the April 2026 statement (covering
 | Category | present, blank on refunds like `Devolución` | not present |
 | Dates | one, no year (year comes from the `DE 15 JUL 2025 A 14 AGO 2025` header line) | two, with year: operación and cargo |
 
-`extract_pdf_text.sh` picks the pdftotext mode per file by sniffing for the `Página N de M` header. This matters: with pdftotext's default mode, amounts get detached from their rows and reordered. `-layout`/`-raw` keep each table row on one line.
+`src/extractPdfText.ts` picks the pdftotext mode per file by sniffing for the `Página N de M` header. This matters: with pdftotext's default mode, amounts get detached from their rows and reordered. `-layout`/`-raw` keep each table row on one line.
 
 **One line = one row.** The parser assumes everything it needs for a transaction is on the row's own line and ignores all other lines, including continuation lines under a row (`Tarjeta virtual **** 1983`, `Cambio (USD 1 = $17.47)` / `USD 20.00`, `Abono (Transferencia SPEI)`, wrapped old-format text). This holds for all current statements; the cost is losing original-currency amounts.
 
