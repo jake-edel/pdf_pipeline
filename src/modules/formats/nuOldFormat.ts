@@ -108,10 +108,10 @@ function reconcile(parsed: NuOldParsedStatement, previousText: string | null) {
 }
 
 /**
- * Same test as src/extractPdfText.ts: only the new statements
- * have `Página N de M` page headers.
+ * A positive signal rather than "no Página N de M header" (that's also true
+ * of BBVA's statements) — this exact table-start marker is Nu-old-only.
  */
-const detect = (text: string) => !/^Página \d+ de \d+/m.test(text);
+const detect = (text: string) => new RegExp(`^${tableStart}`, "m").test(text);
 
 const nuOldFormat: Format<NuOldParsedStatement> = {
   id: "nu-old",
