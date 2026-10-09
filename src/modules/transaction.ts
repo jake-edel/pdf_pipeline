@@ -34,7 +34,7 @@ export function toTransaction(row: Row): Transaction {
   return {
     date_transaction: row.dateTransaction,
     category_name: row.category,
-    opposing_name: row.merchant,
+    opposing_name: row.counterparty ?? row.merchant,
     description: row.merchant,
     amount: row.cents / 100,
   };

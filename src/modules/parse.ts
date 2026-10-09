@@ -5,7 +5,19 @@ export type Row = {
   /** Only the old format has categories */
   category: string | null;
   merchant: string;
-  /** Charges are positive, payments and credits are negative */
+  /**
+   * The actual person/company on the other end, when a format can tell them
+   * apart from `merchant` (BBVA's SPEI rows print a counterparty name on
+   * their own line; Nu never prints anything beyond the merchant string).
+   * Falls back to `merchant` in toTransaction() when null.
+   */
+  counterparty: string | null;
+  /**
+   * Sign convention is per-format, not universal: Nu keeps charge-positive
+   * (matching the printed statement, flipped for Firefly via amount_negated);
+   * BBVA uses deposit-positive/withdrawal-negative (its natural balance
+   * direction, no flip needed). See each format's own module.
+   */
   cents: number;
 };
 

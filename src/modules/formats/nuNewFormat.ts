@@ -27,6 +27,7 @@ function parse(text: string): NuNewParsedStatement {
         dateCharge: parseFullDate(dateCharge),
         category: null,
         merchant,
+        counterparty: null,
         cents: parseAmount(amount),
       });
     } else if (rowStartRegexp.test(line)) {
