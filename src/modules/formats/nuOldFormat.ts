@@ -32,9 +32,9 @@ export function readSaldoFinal(text: string) {
   throw new Error("Could not find Saldo final del periodo");
 }
 
-type OldParsedStatement = ParsedStatement & { saldoFinal: number };
+type NuOldParsedStatement = ParsedStatement & { saldoFinal: number };
 
-function parse(text: string): OldParsedStatement {
+function parse(text: string): NuOldParsedStatement {
   const period = text.match(periodRegexp);
   if (!period) {
     throw new Error("Could not find the statement period (DE ... A ...)");
@@ -93,7 +93,7 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
  * Old format has no totals of its own: reconcile against the previous
  * statement's final balance instead. Skipped if that statement is unavailable.
  */
-function reconcile(parsed: OldParsedStatement, previousText: string | null) {
+function reconcile(parsed: NuOldParsedStatement, previousText: string | null) {
   if (previousText === null) return [];
 
   const previousSaldoFinal = readSaldoFinal(previousText);
@@ -113,12 +113,12 @@ function reconcile(parsed: OldParsedStatement, previousText: string | null) {
  */
 const detect = (text: string) => !/^Página \d+ de \d+/m.test(text);
 
-const oldFormat: Format<OldParsedStatement> = {
-  id: "old",
+const nuOldFormat: Format<NuOldParsedStatement> = {
+  id: "nu-old",
   detect,
   parse,
   needsPreviousStatement: true,
   reconcile,
 };
 
-export default oldFormat;
+export default nuOldFormat;

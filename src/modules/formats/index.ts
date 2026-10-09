@@ -1,9 +1,9 @@
-import oldFormat from "./oldFormat.ts";
-import newFormat from "./newFormat.ts";
+import nuOldFormat from "./nuOldFormat.ts";
+import nuNewFormat from "./nuNewFormat.ts";
 import type { Format } from "./types.ts";
 
 /** Tried in order; adding a format is adding an entry here. */
-const formats: Format<any>[] = [oldFormat, newFormat];
+const formats: Format<any>[] = [nuOldFormat, nuNewFormat];
 
 /** Picks the one format whose `detect()` matches. Zero or several matches is an error. */
 export default function detectFormat(text: string): Format<any> {

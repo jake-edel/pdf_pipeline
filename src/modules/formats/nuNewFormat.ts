@@ -11,9 +11,9 @@ const rowRegexp = new RegExp(
 );
 const rowStartRegexp = new RegExp(`^${date} ${date} `);
 
-type NewParsedStatement = ParsedStatement & { charges: number; credits: number };
+type NuNewParsedStatement = ParsedStatement & { charges: number; credits: number };
 
-function parse(text: string): NewParsedStatement {
+function parse(text: string): NuNewParsedStatement {
   const lines = text.split("\n").map((line) => line.trim());
 
   const rows: Row[] = [];
@@ -53,7 +53,7 @@ const dollars = (cents: number) => (cents / 100).toFixed(2);
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 
 /** New format prints its own totals, so reconciliation needs no other statement. */
-function reconcile(parsed: NewParsedStatement) {
+function reconcile(parsed: NuNewParsedStatement) {
   const errors: string[] = [];
   const cents = parsed.rows.map((row) => row.cents);
   const charges = sum(cents.filter((c) => c > 0));
@@ -79,12 +79,12 @@ function reconcile(parsed: NewParsedStatement) {
  */
 const detect = (text: string) => /^Página \d+ de \d+/m.test(text);
 
-const newFormat: Format<NewParsedStatement> = {
-  id: "new",
+const nuNewFormat: Format<NuNewParsedStatement> = {
+  id: "nu-new",
   detect,
   parse,
   needsPreviousStatement: false,
   reconcile,
 };
 
-export default newFormat;
+export default nuNewFormat;
