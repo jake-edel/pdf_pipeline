@@ -4,3 +4,4 @@ text/*
 transactions/*
 csv/*
 model/*
+.env
