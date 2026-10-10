@@ -33,14 +33,23 @@ const policy = JSON.parse(
   await fs.readFile(path.join(process.cwd(), "category_policy.json"), "utf-8"),
 ) as CategoryPolicy;
 
-// Built separately by buildCategoryModel.ts (npm run model), so every run
-// classifies against the same model and its counts can be inspected.
-const modelPath = path.join(process.cwd(), "model", "category_model.json");
+// Built separately by buildCategoryModel.ts + bootstrapCategoryModel.ts
+// (npm run model && npm run model:bootstrap), so every run classifies
+// against the same model and its counts can be inspected. This is the
+// enriched model (base model plus self-training on the rows it left
+// Undecided), not the base model itself.
+const modelPath = path.join(
+  process.cwd(),
+  "model",
+  "category_model_enriched.json",
+);
 let model: CategoryModel;
 try {
   model = deserializeModel(await fs.readFile(modelPath, "utf-8"));
 } catch (e) {
-  console.error(`Error reading ${modelPath}! Run \`npm run model\` first.`);
+  console.error(
+    `Error reading ${modelPath}! Run \`npm run model && npm run model:bootstrap\` first.`,
+  );
   console.error(e);
   process.exit(1);
 }

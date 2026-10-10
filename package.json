@@ -12,8 +12,9 @@
     "parse": "node src/textToJson.ts",
     "parse-all": "for f in text/*/*.txt; do node src/textToJson.ts \"$f\"; done",
     "model": "node src/buildCategoryModel.ts",
+    "model:bootstrap": "node src/bootstrapCategoryModel.ts",
     "csv": "node src/jsonToCsv.ts",
-    "csv-all": "npm run model && for f in transactions/*/*.json; do node src/jsonToCsv.ts \"$f\"; done && for d in csv/*/; do rm -f \"$d/all.csv\"; touch \"$d/all.csv\"; for f in \"$d\"*-*.csv; do sed '1d' \"$f\" >> \"$d/all.csv\"; done; done"
+    "csv-all": "npm run model && npm run model:bootstrap && for f in transactions/*/*.json; do node src/jsonToCsv.ts \"$f\"; done && for d in csv/*/; do rm -f \"$d/all.csv\"; touch \"$d/all.csv\"; for f in \"$d\"*-*.csv; do sed '1d' \"$f\" >> \"$d/all.csv\"; done; done"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
