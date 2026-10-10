@@ -1,10 +1,8 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with code in this repository.
-
 ## What this is
 
-A manual, three-stage pipeline that turns monthly credit card statement PDFs (Nu México, Spanish-language, MXN) into a JSON array of transactions, and from that into CSVs for Firefly III's Data Importer. The stages are run by hand on purpose during development.
+A manual, three-stage pipeline that turns monthly credit card statement PDFs into a JSON array of transactions, and from that into CSVs for Firefly III's Data Importer.
 
 ```
 pdfs/<provider>/YYYY-MM.pdf --src/extractPdfText.ts--> text/<provider>/YYYY-MM.txt --src/textToJson.ts--> transactions/<provider>/YYYY-MM.json --src/jsonToCsv.ts--> csv/<provider>/YYYY-MM.csv
@@ -30,41 +28,46 @@ node src/jsonToCsv.ts transactions/nu/2026-04.json   # same as: npm run csv -- t
 npm run csv-all                                       # rebuild the category model, then regenerate csv/ for every provider
 ```
 
-Only `nu` has a working extraction profile so far (page range, `pdftotext` mode); `extract-all` also globs `pdfs/bbva/*.pdf` but will mis-extract or fail on those until BBVA's own page range/password handling is built.
+## The `Format` type
 
-`pdfs/`, `text/`, `transactions/`, `csv/` are gitignored and hold real financial data. `wip/` (untracked) is scratch output for in-progress parser work.
+Formats, not providers, are what the parsing pipeline keys on. `<provider>` (the `pdfs/<provider>/` directory) only decides extraction mechanics — `src/modules/extractProfiles.ts` maps it to a page range and optional PDF password — and where files land; from `textToJson.ts` onward, everything works off the text's own content. That's the hook for provider-agnosticism: Nu alone needed two formats (`nu-old`, `nu-new`) when the bank changed its PDF layout in Apr 2026 — same provider, different format — while BBVA checking statements are a third format under a different provider, and nothing in the pipeline treats BBVA specially.
 
-## Two statement formats
+A `Format` (`src/modules/formats/types.ts`) bundles everything one statement layout needs into one self-contained object:
 
-The bank changed its PDF layout starting with the April 2026 statement (covering mid-Mar to mid-Apr). Both formats must keep working; the older ones are Jun 2025 – Mar 2026, the newer ones Apr 2026 onward. Nothing ties a file to a format except its content:
+```ts
+type Format<T extends ParsedStatement = ParsedStatement> = {
+  id: string;
+  detect(text: string): boolean;
+  parse(text: string): T;
+  needsPreviousStatement: boolean;
+  reconcile(parsed: T, previousText: string | null): string[];
+};
+```
 
-| | Old | New |
-|---|---|---|
-| Detect | no `Página N de M` line | has `Página N de M` page headers |
-| pdftotext mode | `-layout` | `-raw` |
-| Section markers | starts at `TRANSACCIONES`, ends at `Saldo final del periodo` | table under a `Fecha de la` / `operación` / `Fecha de cargo Monto Descripción del movimiento` header (repeated each page); no end marker |
-| Row shape | `DD MON`, category, merchant, `$amount` (`- $x` for payments), columns split by 2+ spaces | `DD MON YYYY DD MON YYYY Merchant \| RFC: S.I. +$x` (`-$x` for payments/credits) |
-| Category | present, blank on refunds like `Devolución` | not present |
-| Dates | one, no year (year comes from the `DE 15 JUL 2025 A 14 AGO 2025` header line) | two, with year: operación and cargo |
+`src/modules/formats/index.ts` holds the list — currently `[nuOldFormat, nuNewFormat, bbvaChecking]` — and `detectFormat()` runs every format's `detect()` over the text and returns whichever one matches; zero or multiple matches is an error. Adding a format means writing one module (detection regexp, row regexp, reconciliation) and adding it to that list; `textToJson.ts` and everything upstream of it stay untouched.
 
-`src/extractPdfText.ts` picks the pdftotext mode per file by sniffing for the `Página N de M` header. This matters: with pdftotext's default mode, amounts get detached from their rows and reordered. `-layout`/`-raw` keep each table row on one line.
+`parse()` returns a `ParsedStatement` (`{ rows: Row[], failed: string[] }`), but each format's own return type extends it with whatever extra fields its `reconcile()` needs — `nu-old`: `saldoFinal`; `nu-new`: `charges`/`credits`; `bbva-checking`: cargo/abono totals and counts — typed end-to-end via `Format<T extends ParsedStatement>`. `reconcile()` is the format's own cross-check against the statement's printed totals, or, for `nu-old` (which prints none of its own), against the previous month's final balance; `needsPreviousStatement` tells `textToJson.ts` whether to bother reading that file at all.
 
-**One line = one row.** The parser assumes everything it needs for a transaction is on the row's own line and ignores all other lines, including continuation lines under a row (`Tarjeta virtual **** 1983`, `Cambio (USD 1 = $17.47)` / `USD 20.00`, `Abono (Transferencia SPEI)`, wrapped old-format text). This holds for all current statements; the cost is losing original-currency amounts.
+Every format normalizes into the same `Row` shape (`src/modules/parse.ts`): `dateTransaction`, `dateCharge`, `category`, `merchant`, `counterparty`, `cents`. Fields a format doesn't have are just `null` (Nu never sets `counterparty`; `nu-new` has no `category`). One inconsistency formats don't normalize away: `cents`'s sign convention is per-format, documented in each format's own module — Nu is charge-positive (matching the printed statement); BBVA is deposit-positive/withdrawal-negative (its natural balance direction) — so code consuming a `Row` has to know which format produced it.
 
-Row-lookalikes that must not be parsed as transactions: the new format's page-3 installment table (single line, but only one date, so the two-date row regexp skips it) and, in old files from 2026-02, a `SALDO A MESES` table after `Saldo final del periodo` (which is why the old parser only reads between `TRANSACCIONES` and `Saldo final del periodo`). Also, the new format's `Notas: …` page footer is glued to the next page's `Número de tarjeta…` on one line, so don't rely on line-anchored page-element stripping there.
+**One line = one row** still holds for Nu's two formats: everything needed for a transaction is on the row's own line, and continuation lines (`Tarjeta virtual **** 1983`, `Cambio (USD 1 = $17.47)` / `USD 20.00`, `Abono (Transferencia SPEI)`) are ignored outright, at the cost of losing original-currency amounts. BBVA's format relaxes this: it gathers each row's continuation lines up to the next row or the table end, filters out page-break boilerplate, and — when the last one looks like a bare name — uses it as `counterparty` (`gatherContinuation`/`counterpartyFrom` in `bbvaChecking.ts`), since SPEI rows print the counterparty on its own trailing line.
+
+Row-lookalikes each format must not misparse as transactions: `nu-new` skips its page-3 installment table because the row regexp requires two dates and the table only has one; `nu-old` only reads between `TRANSACCIONES` and `Saldo final del periodo`, which is why a `SALDO A MESES` table appearing after `Saldo final del periodo` (seen in 2026-02) is excluded; `bbva-checking` treats a row-shaped line with no amount (an administrative notice like `APERTURA DE CUENTA`) as skippable rather than a parse failure.
+
+`src/extractPdfText.ts` picks pdftotext's `-raw` vs `-layout` mode per file by sniffing for a `Página N de M` page-header line (also `nu-new`'s own `detect()`) — pdftotext's default mode detaches amounts from their rows and reorders them, and `-layout`/`-raw` are what keep each table row on one line. This happens before any format is detected, so it can't itself depend on `Format`; it's decided per file, not per provider.
 
 ## Code structure
 
 `src/textToJson.ts` is the entry point: read text file, `detectFormat`, run the format's parser, validate, write JSON. Unparsable row-like lines go to `<name>_failed.json` (removed again on a clean run). Validation failures are printed and set exit code 1; the JSON is still written.
 
-JSON row shape (the `Transaction` type in `modules/transaction.ts`, built by `toTransaction`): `{ date_transaction (ISO date), category_name (null when absent), opposing_name, description, amount }`. Charges are positive, payments/credits negative. The new format's `date_transaction` is the operation date (the charge date is parsed onto `Row.dateCharge` but not emitted). The JSON is statement-faithful and Firefly-agnostic; everything Firefly-specific lives in stage 3.
+JSON row shape (the `Transaction` type in `modules/transaction.ts`, built by `toTransaction`): `{ date_transaction (ISO date), category_name (null when absent), opposing_name, description, amount }`. `amount` keeps whichever sign convention the source format used (see `Row.cents` above) — `opposing_name` falls back to `merchant` when a format's `counterparty` is `null`. `nu-new`'s `date_transaction` is the operation date (the charge date is parsed onto `Row.dateCharge` but not emitted). The JSON is statement-faithful and Firefly-agnostic; everything Firefly-specific lives in stage 3.
 
 `src/modules/`:
-- `detectFormat.ts`: `old` vs `new`, same test as the extract script.
-- `formats/newFormat.ts`, `formats/oldFormat.ts`: each returns `{ rows, failed, expected }`. The old parser also drops the `Ajuste … Aumentaste tu límite de crédito con garantía` rows (credit-limit notices, not spending) by description; don't filter by category, since `Ajuste` is also used for a real refund.
+- `formats/types.ts`, `formats/index.ts`: the `Format` type and the `detectFormat` registry — see above.
+- `formats/nuOldFormat.ts`, `formats/nuNewFormat.ts`, `formats/bbvaChecking.ts`: one module per format, each owning its own row regexp, `parse`, and `reconcile`. `nu-old` also drops `Ajuste … Aumentaste tu límite de crédito con garantía` rows (credit-limit notices, not spending) by description; don't filter by category, since `Ajuste` is also used for a real refund.
 - `parse.ts`: `Row` type (amounts in integer cents) and `parseAmount`.
-- `dateUtils.ts`: month map, `toIsoDate` (UTC, timezone-independent), and year resolution from the statement period for old-format rows.
-- `validate.ts`: new format, row sums must equal the printed `Total de cargos` / `Total de abonos`. Old format, `Saldo final` minus the row sum must equal the previous statement's `Saldo final` (read from the previous month's text file; skipped if it's absent, e.g. 2025-06). Both hold exactly for all current files.
+- `dateUtils.ts`: month map, `toIsoDate`/`toIsoDateFromNumeric` (UTC, timezone-independent); `parseFullDate` for dates printed with their own year (`nu-new`); `toIsoDateInPeriod` for dates that need the statement period to resolve a missing year (`nu-old`, `bbva-checking`).
+- `validate.ts`: checks that apply to every format regardless of layout — at least one row parsed, no row-like lines left unparsed. Format-specific checks (totals, saldo) live in each format's own `reconcile()`, covered above.
 
 ## Stage 3: Firefly III CSV
 
