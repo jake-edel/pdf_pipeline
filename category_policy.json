@@ -1,4 +1,6 @@
 {
+  "RETIRO CAJERO AUTOMCATICO": "Retiro",
+
   "Otros Ingresos": "Otros",
   "Devolución": "Otros",
   "Ccp Playa Del Carmen": "Otros",
@@ -27,6 +29,8 @@
 	"Farmacia Uni": "Salud",
   "Farmacias Similares": "Salud",
   "Femme Plus": "Salud",
+  "LATAMGYM 15309": "Salud",
+  "LATAMGYM SAPI DE CV 13512": "Salud",
 
   "Steamgames.Com": "Tiempo libre",
   "Wl *Steam Purchase": "Tiempo libre",
@@ -94,12 +98,16 @@
   "Autob 1a Clase Cib": "Viaje",
   "Aeromexico Web Pn": "Viaje",
   "Aicm T1": "Viaje",
+  "Aicm T2": "Viaje",
+  "Aicm T3": "Viaje",
+  "HOTEL MA ALOB CHE": "Viaje",
 
   "Gasol Es Capote": "Transporte",
   "Gasol Handall Baca": "Transporte",
   "Gas Suc Arrecifes": "Transporte",
   "Servicio Rio Hondo": "Transporte",
   "Refacc Etr": "Transporte",
+  "RECARGAS Y PAQUETES BMOV": "Transporte",
 
   "Steren": "Electronicos",
   "Steren Eec": "Electronicos",
@@ -107,6 +115,7 @@
   "Claude.Ai Subscription": "Electronicos",
   "Openai *Chatgpt Subscr": "Electronicos",
   "Openai": "Electronicos",
+  "Google YouTubePremium": "Electronicos",
 
   "Johnny D Burger": "Restaurante",
   "Heladeria Lelo": "Restaurante",
