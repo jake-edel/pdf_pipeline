@@ -29,6 +29,23 @@ import { tokenize } from "./tokenize.ts";
 export type CategoryPolicy = Record<string, string>;
 
 /**
+ * Case-insensitive lookup of `merchant` in the policy. The policy was
+ * hand-built against Nu's mostly Title-Case merchant strings, but BBVA's are
+ * ALL-CAPS, so an exact-match lookup silently misses rows that are really
+ * the same merchant under different casing.
+ */
+export function matchPolicy(
+  policy: CategoryPolicy,
+  merchant: string,
+): string | undefined {
+  const lower = merchant.toLowerCase();
+  for (const key of Object.keys(policy)) {
+    if (key.toLowerCase() === lower) return policy[key];
+  }
+  return undefined;
+}
+
+/**
  * The trained state `classify()` reads. Everything in here is a raw
  * count — see the module header for why probabilities aren't
  * precomputed.
@@ -112,8 +129,8 @@ function ingest(
  * contributes a single count:
  *   - `category_name === null` rows (every new-format transaction,
  *     since that's the whole problem this engine exists to solve) carry
- *     no training signal and are skipped — unless the policy has an
- *     override for their exact `opposing_name`, in which
+ *     no training signal and are skipped — unless the policy has a
+ *     (case-insensitive) match for their `opposing_name`, in which
  *     case they count under that category like any other row.
  *   - Card payment rows are skipped via the same `isCardPayment` check
  *     `jsonToCsv.ts` uses to leave them out of the Firefly CSV. This
@@ -132,20 +149,13 @@ export function buildModel(
   const categoryWordTotals = new Map<string, number>();
   const categoryTransactionCounts = new Map<string, number>();
 
-  const policyMerchants = new Set(Object.keys(policy));
-
   for (const transaction of history) {
     if (isCardPayment(transaction)) continue;
 
-    // If our policy entry has an exact match for our merchant,
-    // it's a category override
-    const hasCategoryOverride = policyMerchants.has(transaction.opposing_name);
-
-    // If it's a category override, replace the category with
-    // the one found in the policy file
-    const category = hasCategoryOverride
-      ? policy[transaction.opposing_name]
-      : transaction.category_name
+    // If the policy has a (case-insensitive) match for our merchant, it's a
+    // category override — replace the category with the one from the policy.
+    const policyCategory = matchPolicy(policy, transaction.opposing_name);
+    const category = policyCategory ?? transaction.category_name;
 
     // No override and no bank-printed category: nothing to learn from
     if (category === null) continue;
