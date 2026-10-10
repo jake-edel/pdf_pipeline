@@ -7,7 +7,7 @@
   "type": "module",
   "main": "textToJson.ts",
   "scripts": {
-    "extract": "node src/extractPdfText.ts",
+    "extract": "node --env-file=.env src/extractPdfText.ts",
     "extract-all": "for f in pdfs/*/*.pdf; do npm run extract \"$f\"; done",
     "parse": "node src/textToJson.ts",
     "parse-all": "for f in text/*/*.txt; do node src/textToJson.ts \"$f\"; done",
