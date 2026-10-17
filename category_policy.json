@@ -255,5 +255,13 @@
   "RETIRO EN VENTANILLA": "Retiro",
   "OXXOCARTUCHOS CUE CASH": "Retiro",
 
-	"SPEI RECIBIDOJP MORGAN": "Nomina"
+  "SPEI ENVIADO NU MEXICO": "Transferencia",
+  "SPEI DEVOLUTONU MEXICO": "Transferencia",
+  "SPEI ENVIADO STP": "Transferencia",
+  "SPEI RECIBIDOSTP`": "Transferencia",
+  "SPEI ENVIADO AZTECA`": "Transferencia",
+  "PAGO CUENTA DE TERCERO": "Transferencia",
+
+  "INFORMATION HANDLING SERVICES DE M (PAGO NOMINA SPG)": "Nomina",
+  "Letsdeel Mexico Services SC (-NOMINA-Letsdeel Mexico m)": "Nomina"
 }
