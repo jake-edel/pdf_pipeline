@@ -84,13 +84,21 @@ function gatherContinuation(lines: string[], from: number, upTo: number) {
   return { continuation, next: i };
 }
 
+/** Strips digits (reference numbers glued into the memo with no delimiter) and
+ * collapses the resulting gaps; may also eat a real digit from the free-text
+ * memo itself, which is accepted. */
+function stripDigits(text: string) {
+  return text.replace(/\d+/g, "").replace(/\s{2,}/g, " ").trim();
+}
+
 /**
  * SPEI rows print the counterparty as a dedicated trailing line; everything
  * else's continuation lines mix in reference codes, which fail the
  * name-shape test. When found, the row's own first continuation line (its
  * free-text transfer memo, e.g. "Renta", "cenote 5 ene") is folded in too —
- * concatenated for now rather than split into its own field, since the
- * memo is often glued to a reference number with no delimiter.
+ * concatenated for now rather than split into its own field, with digits
+ * stripped since the memo is often glued to a reference number with no
+ * delimiter.
  */
 function counterpartyFrom(continuation: string[]) {
   if (continuation.length === 0) return null;
@@ -100,8 +108,8 @@ function counterpartyFrom(continuation: string[]) {
     nameLikeRegexp.test(last) && last.trim().split(/\s+/).length >= 2;
   if (!isName) return null;
 
-  const memo = continuation[0];
-  return continuation.length > 1 ? `${last} (${memo})` : last;
+  const memo = stripDigits(continuation[0]);
+  return continuation.length > 1 && memo ? `${last} (${memo})` : last;
 }
 
 function parse(text: string): BbvaCheckingParsedStatement {
