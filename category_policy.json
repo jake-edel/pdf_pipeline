@@ -18,6 +18,14 @@
   "PAGO ANTICIPADO PRESTAMO": "Otros",
   "MERCADO PAGO": "Otros",
   "MERPAGO*MER PAGO 1": "Otros",
+  "Adriana Lortia (deposito)": "Otros",
+  "Fernanda Lizet Islas Delgado (deposito)": "Otros",
+  "Eduardo Alvarado (x)": "Otros",
+  "CARAVAN": "Otros",
+  "CLIP MX*AMPAROS COZUME": "Otros",
+  "CLIPMX*AGREGADOR": "Otros",
+  "TCONE AGREGADOR": "Otros",
+  "MERPAGO*KAAN": "Otros",
 
   "Qualitas Sel - 1/6": "Seguro",
   "Qualitas Sel - 2/6": "Seguro",
@@ -42,6 +50,7 @@
   "FAR GUAD 2532": "Salud",
   "SMARTFIT": "Salud",
   "CLIP MX*MED CONSUL": "Salud",
+  "CITIBANK EUROPE PLC (C . MEDICAL EXPENSES D)": "Salud",
 
   "Steamgames.Com": "Tiempo libre",
   "Wl *Steam Purchase": "Tiempo libre",
@@ -56,6 +65,10 @@
   "CENOTE ZAPOTE": "Tiempo libre",
   "LIB MUNDO": "Tiempo libre",
   "ZENZI": "Tiempo libre",
+  "Alejandra Rodriguez Miranda (cenote)": "Tiempo libre",
+  "Alejandra Rodriguez Miranda (Dive)": "Tiempo libre",
+  "Guadalupe Miranda Perez (cenote ene)": "Tiempo libre",
+  "Guadalupe Miranda Perez (Chac mool dive)": "Tiempo libre",
 
   "Floreria Floreli Bout": "Hogar",
   "Floreria Iris I": "Hogar",
@@ -65,6 +78,8 @@
   "Vet Super Mascota": "Hogar",
   "BABY LOVE 2": "Hogar",
   "CLIPMX**PAPELERIA VILL": "Hogar",
+  "Miguel Angel Leyva (bomba)": "Hogar",
+  "Stefano Pasquali (ac)": "Hogar",
 
   "Telcel": "Cellular",
   "T1 Telcel Pyre": "Cellular",
@@ -72,6 +87,7 @@
   "Telcel Claro2miniapp": "Cellular",
   "MEXPAGO*VS TELCEL 8009639": "Cellular",
   "MI ATT APP PAQ DAT": "Cellular",
+  "MI ATT A APP A": "Cellular",
   "VS TELCEL 018001200006": "Cellular",
 
 	"Merpago*Mercadolibre": "Amazon",
@@ -159,6 +175,11 @@
   "GASOL ES 08873": "Transporte",
   "GASOL TRES ISLAS": "Transporte",
   "STRIPE *UBER TRIP": "Transporte",
+  "carlos alvares (taxi)": "Transporte",
+  "Brandon Lara (mecanico)": "Transporte",
+  "Andre Santa Ana Rizo (yaris blanco)": "Transporte",
+  "Jesus Santa Ana Zalvidar (yaris)": "Transporte",
+  "Juana Acosta Ramierez (carro)": "Transporte",
 
   "Steren": "Electronicos",
   "Steren Eec": "Electronicos",
@@ -249,6 +270,10 @@
   "PREDUR": "Servicio",
   "CLIPMX**OTROS SERVICIO": "Servicio",
   "SERV CBE": "Servicio",
+  "Armando Vicente (plomero)": "Servicio",
+  "jesenia ordonez (corte de cabello)": "Servicio",
+  "Wendy Dalia Gomez Togo (traduccion)": "Servicio",
+  "Oscar Eugenio Aburto Islas (venue)": "Servicio",
 
   "RETIRO CAJERO AUTOMATICO": "Retiro",
   "RETIRO SIN TARJETA": "Retiro",
@@ -261,6 +286,11 @@
   "SPEI RECIBIDOSTP`": "Transferencia",
   "SPEI ENVIADO AZTECA`": "Transferencia",
   "PAGO CUENTA DE TERCERO": "Transferencia",
+  "MELISSA JIMENEZ MUNIZ (donacion)": "Transferencia",
+  "MELISSA JIMENEZ MUNIZ (renta sep)": "Transferencia",
+  "MELISSA JIMENEZ MUNIZ (boda)": "Transferencia",
+  "Arturo Jimenez Muniz (renta)": "Transferencia",
+  "Jakob Andrew Edelstein (ahorro)": "Transferencia",
 
   "INFORMATION HANDLING SERVICES DE M (PAGO NOMINA SPG)": "Nomina",
   "Letsdeel Mexico Services SC (-NOMINA-Letsdeel Mexico m)": "Nomina"
