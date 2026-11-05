@@ -11,6 +11,9 @@ const rowRegexp = new RegExp(
 );
 const rowStartRegexp = new RegExp(`^${date} ${date} `);
 
+// Installments will be dated by the charge date instead of operation date.
+const installmentRegexp = / - \d+\/\d+$/;
+
 type NuNewParsedStatement = ParsedStatement & { charges: number; credits: number };
 
 function parse(text: string): NuNewParsedStatement {
@@ -22,9 +25,12 @@ function parse(text: string): NuNewParsedStatement {
     const match = line.match(rowRegexp);
     if (match) {
       const [, dateTransaction, dateCharge, merchant, amount] = match;
+      const charged = parseFullDate(dateCharge);
       rows.push({
-        dateTransaction: parseFullDate(dateTransaction),
-        dateCharge: parseFullDate(dateCharge),
+        dateTransaction: installmentRegexp.test(merchant)
+          ? charged
+          : parseFullDate(dateTransaction),
+        dateCharge: charged,
         category: null,
         merchant,
         counterparty: null,
