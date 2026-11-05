@@ -5,23 +5,27 @@
 import type { CategoryModel, CategoryPolicy } from "./buildModel.ts";
 import { matchPolicy } from "./buildModel.ts";
 import { classify } from "./classify.ts";
+import type { Transaction } from "../transaction.ts";
 
 const CATEGORY_CONFIDENCE_THRESHOLD = 0.5;
 
 /**
- * @param merchant - Same string passed to `classify()`, matched against
- * `category_policy.json` case-insensitively.
+ * @param transaction - Categorized by its memo when it has one (the memo is
+ * usually the only hint at what a transfer to a person was for), otherwise
+ * by its `opposing_name`. That text is matched against
+ * `category_policy.json` case-insensitively, then passed to `classify()`.
  * @param model - The weighted model of all the previous known
  * merchant => category mappings
  * @param policy - The category_policy.json read into memory
  * @returns The decided category, or `null` if neither check resolves one.
  */
 export function decide(
-  merchant: string,
+  transaction: Transaction,
   model: CategoryModel,
   policy: CategoryPolicy,
   threshold: number = CATEGORY_CONFIDENCE_THRESHOLD,
 ): string | null {
+  const merchant = transaction.memo ?? transaction.opposing_name;
 
   // Our vendor => string mappings in the policy file are decision
   // overrides. If we find a match, that dictates the assigned category.

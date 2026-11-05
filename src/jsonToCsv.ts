@@ -59,11 +59,7 @@ try {
 const categorized = json.map((transaction) => {
   return {
     ...transaction,
-    category_name: decide(
-      transaction.opposing_name,
-      model,
-      policy
-    ),
+    category_name: decide(transaction, model, policy),
   };
 });
 

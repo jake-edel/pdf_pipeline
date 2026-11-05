@@ -47,7 +47,7 @@ let pseudoLabeled = 0;
 const enriched: Transaction[] = history.map((transaction) => {
   if (transaction.category_name !== null) return transaction;
 
-  const category = decide(transaction.opposing_name, baseModel, policy);
+  const category = decide(transaction, baseModel, policy);
   if (category === null) return transaction;
 
   pseudoLabeled++;

@@ -154,14 +154,16 @@ export function buildModel(
 
     // If the policy has a (case-insensitive) match for our merchant, it's a
     // category override — replace the category with the one from the policy.
-    const policyCategory = matchPolicy(policy, transaction.opposing_name);
+    // Same text decide() categorizes by: the memo when there is one
+    const text = transaction.memo ?? transaction.opposing_name;
+    const policyCategory = matchPolicy(policy, text);
     const category = policyCategory ?? transaction.category_name;
 
     // No override and no bank-printed category: nothing to learn from
     if (category === null) continue;
 
     ingest(
-      transaction.opposing_name,
+      text,
       category,
       wordCategoryCounts,
       categoryWordTotals,
