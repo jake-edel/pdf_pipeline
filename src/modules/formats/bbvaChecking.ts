@@ -94,22 +94,22 @@ function stripDigits(text: string) {
 /**
  * SPEI rows print the counterparty as a dedicated trailing line; everything
  * else's continuation lines mix in reference codes, which fail the
- * name-shape test. When found, the row's own first continuation line (its
- * free-text transfer memo, e.g. "Renta", "cenote 5 ene") is folded in too —
- * concatenated for now rather than split into its own field, with digits
+ * name-shape test. When found, the row's own first continuation line is its
+ * free-text transfer memo (e.g. "Renta", "cenote 5 ene"), with digits
  * stripped since the memo is often glued to a reference number with no
  * delimiter.
  */
 function counterpartyFrom(continuation: string[]) {
-  if (continuation.length === 0) return null;
+  const none = { counterparty: null, memo: null };
+  if (continuation.length === 0) return none;
 
   const last = continuation[continuation.length - 1];
   const isName =
     nameLikeRegexp.test(last) && last.trim().split(/\s+/).length >= 2;
-  if (!isName) return null;
+  if (!isName) return none;
 
-  const memo = stripDigits(continuation[0]);
-  return continuation.length > 1 && memo ? `${last} (${memo})` : last;
+  const memo = continuation.length > 1 ? stripDigits(continuation[0]) : "";
+  return { counterparty: last, memo: memo || null };
 }
 
 function parse(text: string): BbvaCheckingParsedStatement {
@@ -164,7 +164,7 @@ function parse(text: string): BbvaCheckingParsedStatement {
         dateCharge: toIsoDateInPeriod(liqDay, liqMonth, periodStart, periodEnd),
         category: null,
         merchant: description,
-        counterparty: counterpartyFrom(continuation),
+        ...counterpartyFrom(continuation),
         cents: isCargo(amountStart) ? -parsePesos(amount) : parsePesos(amount),
       });
       i = next;

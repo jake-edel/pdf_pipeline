@@ -12,6 +12,8 @@ export type Row = {
    * Falls back to `merchant` in toTransaction() when null.
    */
   counterparty: string | null;
+  /** Free-text transfer memo (BBVA SPEI rows only; Nu never prints one) */
+  memo: string | null;
   /**
    * Sign convention is per-format, not universal: Nu keeps charge-positive
    * (matching the printed statement, flipped for Firefly via amount_negated);

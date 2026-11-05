@@ -10,6 +10,7 @@ export type Transaction = {
   category_name: string | null;
   opposing_name: string;
   description: string;
+  memo: string | null;
   amount: number;
 };
 
@@ -25,6 +26,7 @@ export function isTransactionList(value: unknown): value is Transaction[] {
         (typeof t.category_name === "string" || t.category_name === null) &&
         typeof t.opposing_name === "string" &&
         typeof t.description === "string" &&
+        (typeof t.memo === "string" || t.memo === null) &&
         typeof t.amount === "number",
     )
   );
@@ -36,6 +38,7 @@ export function toTransaction(row: Row): Transaction {
     category_name: row.category,
     opposing_name: row.counterparty ?? row.merchant,
     description: row.merchant,
+    memo: row.memo,
     amount: row.cents / 100,
   };
 }

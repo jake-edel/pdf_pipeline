@@ -11,14 +11,16 @@ export const isCardPayment = (transaction: Transaction) =>
 // Look for self transfers to Nu Bank. Route them to the savings
 // or credit card account using the value in the memo
 const nuTransferRegexp = /^SPEI (ENVIADO|RECIBIDO) ?(NU MEXICO|NUBANK)$/;
-const ownNameRegexp = /^Jakob Andrew Edelstein\b(?: \((.*)\))?/i;
+const ownNameRegexp = /^Jakob Andrew Edelstein$/i;
 
 const opposingName = (transaction: Transaction) => {
-  const own = ownNameRegexp.exec(transaction.opposing_name);
-  if (!nuTransferRegexp.test(transaction.description) || !own) {
+  if (
+    !nuTransferRegexp.test(transaction.description) ||
+    !ownNameRegexp.test(transaction.opposing_name)
+  ) {
     return transaction.opposing_name;
   }
-  return own[1] === "credito" ? "Tarjeta Nu" : "Nu Bank";
+  return transaction.memo === "credito" ? "Tarjeta Nu" : "Nu Bank";
 };
 
 /**
@@ -44,7 +46,8 @@ function externalIds(statement: string, transactions: Transaction[]) {
 
 // The header of each column is the Data Importer role it gets assigned in the
 // importer's config, in this order. Amounts keep the statement's sign
-// (charge +, payment -), which the amount_negated role flips.
+// (charge +, payment -), which the amount_negated role flips. note is last so
+// adding it didn't shift the other columns' indices in the importer config.
 const columns: {
   header: string;
   value: (transaction: Transaction, externalId: string) => string;
@@ -55,6 +58,7 @@ const columns: {
   { header: "opposing-name", value: opposingName },
   { header: "category-name", value: (t) => t.category_name ?? "Undecided" },
   { header: "external-id", value: (_, externalId) => externalId },
+  { header: "note", value: (t) => t.memo ?? "" },
 ];
 
 /** Header row plus one row per transaction, card payments left out */

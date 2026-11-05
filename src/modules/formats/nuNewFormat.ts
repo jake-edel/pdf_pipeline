@@ -28,6 +28,7 @@ function parse(text: string): NuNewParsedStatement {
         category: null,
         merchant,
         counterparty: null,
+        memo: null,
         cents: parseAmount(amount),
       });
     } else if (rowStartRegexp.test(line)) {
