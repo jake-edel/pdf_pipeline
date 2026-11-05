@@ -8,6 +8,19 @@ const cardPaymentRegexp = /^(Pago a tu tarjeta de crédito|¡Gr[aá]cias por tu 
 export const isCardPayment = (transaction: Transaction) =>
   transaction.amount < 0 && cardPaymentRegexp.test(transaction.opposing_name);
 
+// Look for self transfers to Nu Bank. Route them to the savings
+// or credit card account using the value in the memo
+const nuTransferRegexp = /^SPEI (ENVIADO|RECIBIDO) ?(NU MEXICO|NUBANK)$/;
+const ownNameRegexp = /^Jakob Andrew Edelstein\b(?: \((.*)\))?/i;
+
+const opposingName = (transaction: Transaction) => {
+  const own = ownNameRegexp.exec(transaction.opposing_name);
+  if (!nuTransferRegexp.test(transaction.description) || !own) {
+    return transaction.opposing_name;
+  }
+  return own[1] === "credito" ? "Tarjeta Nu" : "Nu Bank";
+};
+
 /**
  * One id per transaction, so the importer can tell apart rows that are
  * identical on date, merchant and amount. The date is left out on purpose,
@@ -39,7 +52,7 @@ const columns: {
   { header: "date_transaction", value: (t) => t.date_transaction },
   { header: "description", value: (t) => t.description },
   { header: "amount_negated", value: (t) => t.amount.toFixed(2) },
-  { header: "opposing-name", value: (t) => t.opposing_name },
+  { header: "opposing-name", value: opposingName },
   { header: "category-name", value: (t) => t.category_name ?? "Undecided" },
   { header: "external-id", value: (_, externalId) => externalId },
 ];
